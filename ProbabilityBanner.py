@@ -113,7 +113,7 @@ def NextWeapon(state,miss,pick,pick2,broken):
 def Character(ticketNumber,goal,accuracy=20000,miss=0,broken=0):
     result=0
     for _ in range(accuracy):
-        r=NextCharacter('C',miss,broken)
+        r=NextCharacter('C',miss,0,broken)
         for i in range(ticketNumber-1):
             r=NextCharacter(*r)
         if r[2]>goal-1:
