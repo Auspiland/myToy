@@ -118,7 +118,7 @@ def Character(ticketNumber,goal,accuracy=20000,miss=0,broken=0):
             r=NextCharacter(*r)
         if r[2]>goal-1:
             result +=1
-    print("Character {}pick up {}success Probability is :".format(ticketNumber,goal),result,"%")
+    print("Character {}pick up {}success Probability is :".format(ticketNumber,goal),100*result/accuracy,"%")
 
 def Weapon(ticketNumber,goal,accuracy=20000,miss=0,broken=0,pick2=0):
     result=0
@@ -128,7 +128,7 @@ def Weapon(ticketNumber,goal,accuracy=20000,miss=0,broken=0,pick2=0):
             r=NextWeapon(*r)
         if r[2]>goal-1:
             result +=1
-    print("Weapon {}pick up {}success Probability is :".format(ticketNumber,goal),result,"%")
+    print("Weapon {}pick up {}success Probability is :".format(ticketNumber,goal),100*result/accuracy,"%")
 
 # Character function need parameters which are, first, (1)the number of ticket you have, second, (2)how many do you want.
 # Additionally, you may have already gambled some pick up banners, or you would like to adjust the accuracy of result.
