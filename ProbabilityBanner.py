@@ -133,8 +133,13 @@ def Weapon(ticketNumber,goal,accuracy=20000,miss=0,broken=0,pick2=0):
 # Character function need parameters which are, first, (1)the number of ticket you have, second, (2)how many do you want.
 # Additionally, you may have already gambled some pick up banners, or you would like to adjust the accuracy of result.
 # Then, you can put more parameters in Character function.
-# Such as number of (3)accuracy(20000 is default), (4)missed stack(number of consecutive 3or4 stars times), (5)whether you lost in 50/50.
+# Such as number of (3)accuracy(20000 is default), (4)missed stack(number of consecutive 3or4 stars times), (5)whether you lost in 50/50(If you lost, enter 1).
 # In weapon funtion, all the parameters are same but you can also put (6)the number of destiny-God's orbit(another weapon which is in banner but you don'y want)
-# The result is expressed in percent(%).
+# The result is expressed in percent(%) and the result has small error range, because the method is numerical.
+# 캐릭터 함수랑 무기 함수에 인수를 집어 넣으면 확률값이 퍼센트(%)로 도출됩니다. 계산은 Numerical한 방법으로 진행되기에 정확도에 따라 오차가 있을 수 있습니다.
+# 필수적으로 입력할 인수는 1.돌릴 뽑기(기원)수, 2.뽑고 싶은 목표 개수 입니다.
+# 추가적으로 입력할 수 있는것은 3.정확도 숫자(높을 수록 오래걸리지만 정확해집니다. 기본은 20000번), 4.스택 개수(5성 안나온 횟수), 5.픽뚫여부(확천이면 1, 반천이면 0)
+# 무기 함수에는 마지막으로 6.운명-신이 정한 궤도 횟수 넣을 수 있습니다.
+
 print("Character pick up Probability is :",Character(100,1),"%")
 print("Weapon pick up Probability is :",Weapon(300,1),"%")
