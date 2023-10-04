@@ -118,7 +118,7 @@ def Character(ticketNumber,goal,accuracy=20000,miss=0,broken=0):
             r=NextCharacter(*r)
         if r[2]>goal-1:
             result +=1
-    return 100*result/accuracy
+    print("Character {}pick up {}success Probability is :".format(ticketNumber,goal),result,"%")
 
 def Weapon(ticketNumber,goal,accuracy=20000,miss=0,broken=0,pick2=0):
     result=0
@@ -128,7 +128,7 @@ def Weapon(ticketNumber,goal,accuracy=20000,miss=0,broken=0,pick2=0):
             r=NextWeapon(*r)
         if r[2]>goal-1:
             result +=1
-    return 100*result/accuracy
+    print("Weapon {}pick up {}success Probability is :".format(ticketNumber,goal),result,"%")
 
 # Character function need parameters which are, first, (1)the number of ticket you have, second, (2)how many do you want.
 # Additionally, you may have already gambled some pick up banners, or you would like to adjust the accuracy of result.
@@ -142,5 +142,5 @@ def Weapon(ticketNumber,goal,accuracy=20000,miss=0,broken=0,pick2=0):
 # 무기 함수에는 마지막으로 6.운명-신이 정한 궤도 횟수 넣을 수 있습니다.
 
 # Example
-print("Character pick up Probability is :",Character(100,1),"%")
-print("Weapon pick up Probability is :",Weapon(300,1),"%")
+Character(320,3)
+Weapon(100,1)
