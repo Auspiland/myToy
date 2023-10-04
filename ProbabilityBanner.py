@@ -141,5 +141,6 @@ def Weapon(ticketNumber,goal,accuracy=20000,miss=0,broken=0,pick2=0):
 # 추가적으로 입력할 수 있는것은 3.정확도 숫자(높을 수록 오래걸리지만 정확해집니다. 기본은 20000번), 4.스택 개수(5성 안나온 횟수), 5.픽뚫여부(확천이면 1, 반천이면 0)
 # 무기 함수에는 마지막으로 6.운명-신이 정한 궤도 횟수 넣을 수 있습니다.
 
+# Example
 print("Character pick up Probability is :",Character(100,1),"%")
 print("Weapon pick up Probability is :",Weapon(300,1),"%")
