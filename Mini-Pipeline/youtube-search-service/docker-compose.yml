@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  spark-app:
+    build:
+      context: ./spark
+    container_name: spark-app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      
+    volumes:
+      - ./download_folder:/app/data_download:ro
+      - ./spark/data/test_json:/app/data/test_json
+    ports:
+      - "8001:8001"
+      - "4040:4040"
+    networks:
+      - shared-net
+
+  fastapi-user:
+    build:
+      context: ./app_user
+    container_name: user-container
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./app_user:/app
+    networks:
+      - shared-net
+
+  fastapi-search:
+    build:
+      context: ./app_search
+    container_name: search-container
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./app_search:/app
+    networks:
+      - shared-net
+
+  nginx:
+    image: nginx:latest
+    container_name: us-nginx-container
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/html:/usr/share/nginx/html:ro
+    depends_on:
+      - fastapi-user
+      - fastapi-search
+    networks:
+      - shared-net
+      
+
+
+networks:
+  shared-net:
+    external: True
