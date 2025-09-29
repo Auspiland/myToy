@@ -11,8 +11,6 @@ Docker를 이용하여 container로 구현하였으며, 모두 Streaming mode로
 
 ### **Network Architecture**
 
-<img width="2442" height="2597" alt="image" src="https://github.com/user-attachments/assets/862a3a90-2853-4e0c-9645-2d882ed4ffb7" />
-
 
 각 박스는 하나의 컨테이너를 지칭하며,  파란색/초록색/주황색을 각 docker-compose.yml 파일로 구성하였습니다.
 
