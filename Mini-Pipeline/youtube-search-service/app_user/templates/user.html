@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Channel Search</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 80px auto;
+      padding: 40px;
+      background-color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      background-color: #4A90E2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    button:hover {
+      background-color: #357ABD;
+    }
+
+    .response {
+      margin-top: 20px;
+      font-size: 0.95rem;
+      color: #222;
+      background-color: #eef1f5;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Channel Search</h1>
+    
+    <label for="channel_name">Channel Name</label>
+    <input type="text" id="channel_name" placeholder="예: KBS 뉴스" />
+
+    <label for="channel_code">Channel ID</label>
+    <input type="text" id="channel_code" placeholder="예: PLxxxxx..." />
+
+    <button onclick="submitToSpark()">Submit to Spark</button>
+
+    <div id="response-box" class="response" style="display:none;"></div>
+  </div>
+
+  <script>
+    async function submitToSpark() {
+      const name = document.getElementById("channel_name").value.trim();
+      const code = document.getElementById("channel_code").value.trim();
+      const responseBox = document.getElementById("response-box");
+
+      responseBox.style.display = "block";
+      responseBox.innerText = "⏳ 요청 중입니다...";
+      responseBox.style.backgroundColor = "#eef1f5";
+      responseBox.style.color = "#333";
+
+      try {
+        const res = await fetch("/spark-submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            channel_name: name,
+            channel_code: code
+          })
+        });
+
+        const contentType = res.headers.get("Content-Type");
+        const text = await res.text();
+
+        if (contentType && contentType.includes("application/json")) {
+          try {
+            const json = JSON.parse(text);
+            const pretty = JSON.stringify(json, null, 2);
+
+            if (json.success === false) {
+              // 실패 응답 처리
+              responseBox.innerText = "❌ 작업 실패:\n\n" + pretty;
+              responseBox.style.backgroundColor = "#ffe0e0";
+              responseBox.style.color = "#b02020";
+            } else {
+              // 성공 응답 처리
+              responseBox.innerText = "✅ 작업 성공:\n\n" + pretty;
+              responseBox.style.backgroundColor = "#e0f6e0";
+              responseBox.style.color = "#246b24";
+            }
+          } catch (e) {
+            responseBox.innerText = "⚠️ JSON 파싱 실패\n응답 원문:\n" + text;
+            responseBox.style.backgroundColor = "#ffe0e0";
+            responseBox.style.color = "#b02020";
+          }
+        } else {
+          responseBox.innerText = "⚠️ JSON 응답이 아님\n응답 원문:\n" + text;
+          responseBox.style.backgroundColor = "#ffe0e0";
+          responseBox.style.color = "#b02020";
+        }
+      } catch (error) {
+        responseBox.innerText = "🚨 네트워크 오류 발생:\n" + error;
+        responseBox.style.backgroundColor = "#ffe0e0";
+        responseBox.style.color = "#b02020";
+      }
+    }
+  </script>
+</body>
