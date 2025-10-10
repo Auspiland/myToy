@@ -8,8 +8,9 @@ import logging
 from dotenv import load_dotenv
 load_dotenv()
 
-from common_utils import response_GPT, clean_filename, extract_json
+from common_utils import response_GPT, clean_filename, extract_json, response_GPT_stream
 log = logging.getLogger(__name__)
+
 
 
 # --- 1) 결과물 스키마 규정 ---
@@ -198,7 +199,7 @@ def request_perf_test_data(problem_text: str, dataset_schema: dict, n_perf=12, s
 }}
 """
     log.info("Perf-data generating")
-    content = response_GPT(
+    content = response_GPT_stream(
         messages=[{"role":"system","content":sys_prompt},
                   {"role":"user","content":user_prompt}]
     )
@@ -229,9 +230,17 @@ def request_perf_test_data(problem_text: str, dataset_schema: dict, n_perf=12, s
         })
     return {"records": norm}
 
-def request_test_data(problem_text: str, dataset_schema: dict, corner_plan: dict, n_corner=40, n_perf=6, special_prompt="") -> dict:
+def request_test_data(problem_text: str, dataset_schema: dict, corner_plan: dict, path: str="./test_data.jsonl", n_corner=40, n_perf=6, special_prompt="") -> dict:
     c = request_corner_test_data(problem_text, dataset_schema, corner_plan, n_corner=n_corner, special_prompt=special_prompt.strip())
+    with open(path, "w", encoding="utf-8") as f:
+        for rec in c.get("records", []):
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    log.info(f"# corner_data saved : {path}  (records={len(c.get('records', []))})")
     p = request_perf_test_data(problem_text, dataset_schema, n_perf=n_perf, special_prompt=special_prompt.strip())
+    with open(path, "a", encoding="utf-8") as f:
+        for rec in p.get("records", []):
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    log.info(f"# perf_data saved   : {path}  (records={len(p.get('records', []))})")
     recs = []
     recs.extend(c.get("records", []))
     recs.extend(p.get("records", []))
@@ -239,50 +248,29 @@ def request_test_data(problem_text: str, dataset_schema: dict, corner_plan: dict
 
 # --- 실행 예시 ---
 def main(problem_text, title=None, special_prompt=None):
+    if not title:
+        title = problem_text[:10].strip()
+        title = clean_filename(title)
+    PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),"generated_data",f"{title}.jsonl")
+    os.makedirs(os.path.dirname(PATH), exist_ok=True)
+
     log.info("=== Setting Schema ===")
     schema = request_schema(problem_text)
     log.info("=== Analyzing corner cases ===")
     corner = request_corner_analysis(problem_text, schema)
     log.info("=== Generating data ===")
-    data   = request_test_data(problem_text, schema, corner, special_prompt=special_prompt)
+    data   = request_test_data(problem_text, schema, corner, path=PATH, special_prompt=special_prompt)
     log.info("=== END ===")
-    if not title:
-        title = problem_text[:10].strip()
-        title = clean_filename(title)
+
     # 결과 출력: schema/corner 요약 + jsonl 파일 저장
     log.info("# schema\n", json.dumps(schema, ensure_ascii=False, indent=2))
     log.info("# corner_plan\n", json.dumps(corner, ensure_ascii=False, indent=2))
-    # jsonl 저장
-    path = rf"C:\_mangojelly\Git-mytoy\myToy\B_project\CT\auto_solve\generated_data\{title}.jsonl"
-    with open(path, "w", encoding="utf-8") as f:
-        for rec in data.get("records", []):
-            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    log.info(f"# saved: {path}  (records={len(data.get('records', []))})")
-    return path
+    if data:
+        return PATH
+    else:
+        return False
 
 if __name__ == "__main__":
     problem_text = '''
-점심시간에 도둑이 들어, 일부 학생이 체육복을 도난당했습니다. 다행히 여벌 체육복이 있는 학생이 이들에게 체육복을 빌려주려 합니다. 학생들의 번호는 체격 순으로 매겨져 있어, 바로 앞번호의 학생이나 바로 뒷번호의 학생에게만 체육복을 빌려줄 수 있습니다. 예를 들어, 4번 학생은 3번 학생이나 5번 학생에게만 체육복을 빌려줄 수 있습니다. 체육복이 없으면 수업을 들을 수 없기 때문에 체육복을 적절히 빌려 최대한 많은 학생이 체육수업을 들어야 합니다.
-
-전체 학생의 수 n, 체육복을 도난당한 학생들의 번호가 담긴 배열 lost, 여벌의 체육복을 가져온 학생들의 번호가 담긴 배열 reserve가 매개변수로 주어질 때, 체육수업을 들을 수 있는 학생의 최댓값을 return 하도록 solution 함수를 작성해주세요.
-
-제한사항
-전체 학생의 수는 2명 이상 30명 이하입니다.
-체육복을 도난당한 학생의 수는 1명 이상 n명 이하이고 중복되는 번호는 없습니다.
-여벌의 체육복을 가져온 학생의 수는 1명 이상 n명 이하이고 중복되는 번호는 없습니다.
-여벌 체육복이 있는 학생만 다른 학생에게 체육복을 빌려줄 수 있습니다.
-여벌 체육복을 가져온 학생이 체육복을 도난당했을 수 있습니다. 이때 이 학생은 체육복을 하나만 도난당했다고 가정하며, 남은 체육복이 하나이기에 다른 학생에게는 체육복을 빌려줄 수 없습니다.
-입출력 예
-n	lost	reserve	return
-5	[2, 4]	[1, 3, 5]	5
-5	[2, 4]	[3]	4
-3	[3]	[1]	2
-입출력 예 설명
-예제 #1
-1번 학생이 2번 학생에게 체육복을 빌려주고, 3번 학생이나 5번 학생이 4번 학생에게 체육복을 빌려주면 학생 5명이 체육수업을 들을 수 있습니다.
-
-예제 #2
-3번 학생이 2번 학생이나 4번 학생에게 체육복을 빌려주면 학생 4명이 체육수업을 들을 수 있습니다.
-
 '''
     main(problem_text)

@@ -12,7 +12,6 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
-
 API_KEY   = os.environ.get("OPENAI_API_KEY", "")
 
 client = OpenAI(api_key=API_KEY)
@@ -29,6 +28,20 @@ def response_GPT(system_prompt="", user_prompt=None, messages=None, model="gpt-5
     )
     text = resp.output_text
     return text
+
+def response_GPT_stream(messages, model="gpt-5"):
+    with client.responses.stream(
+        model=model,
+        input=messages
+        # max_output_tokens=800,
+    ) as stream:
+        parts = []
+        for event in stream:
+            if event.type == "response.output_text.delta":
+                parts.append(event.delta)
+        stream.close()
+    return "".join(parts)
+
 
 def clean_filename(name: str, platform: str = "win") -> str:
     s = str(name)
@@ -68,3 +81,85 @@ def extract_json(text):
         except json.JSONDecodeError:
             pass
     raise ValueError("JSON 파싱 실패")
+
+
+# ====================================================
+
+from openai import APIError, InternalServerError, RateLimitError
+import time, random
+
+RETRYABLE_EXC = (InternalServerError, APIError, ConnectionError, TimeoutError)
+
+def _normalize_messages(system_prompt="", user_prompt=None, messages=None):
+    if messages:
+        return messages
+    if not user_prompt and not system_prompt:
+        raise ValueError("LLM 입력값이 없습니다.")
+    return [
+        {"role": "system", "content": system_prompt or ""},
+        {"role": "user", "content": user_prompt or ""},
+    ]
+
+def response_GPT_with_stream_fallback(
+    system_prompt="",
+    user_prompt=None,
+    messages=None,
+    model="gpt-5",
+    max_output_tokens=None,
+    max_retries=3,
+    fallback_stream=True,
+):
+    """
+    1) 기본적으로 비-스트리밍 요청 시도.
+    2) 5xx 또는 네트워크 오류 발생 시 지수 백오프 후 재시도.
+    3) 반복 실패 시 스트리밍 모드로 폴백.
+    """
+    msgs = _normalize_messages(system_prompt, user_prompt, messages)
+
+    backoff = 1.0
+    for attempt in range(1, max_retries + 1):
+        try:
+            resp = client.responses.create(
+                model=model,
+                messages=msgs,
+                **({"max_output_tokens": max_output_tokens} if max_output_tokens else {}),
+            )
+            return resp.output_text
+        except RateLimitError:
+            sleep_s = backoff + random.uniform(0, 0.4)
+            log.warning(f"[attempt {attempt}] RateLimit, sleep {sleep_s:.2f}s")
+            time.sleep(sleep_s)
+            backoff = min(backoff * 2, 8.0)
+        except RETRYABLE_EXC as e:
+            sleep_s = backoff + random.uniform(0, 0.5)
+            log.warning(f"[attempt {attempt}] Retryable: {type(e).__name__}, sleep {sleep_s:.2f}s")
+            time.sleep(sleep_s)
+            backoff = min(backoff * 2, 8.0)
+        except Exception as e:
+            log.error(f"[attempt {attempt}] Non-retryable: {e}")
+            raise
+
+    if not fallback_stream:
+        raise RuntimeError("비-스트리밍 실패, 스트리밍 폴백 비활성화.")
+
+    # 스트리밍 폴백
+    for attempt in range(1, 3):
+        try:
+            parts = []
+            with client.responses.stream(
+                model=model,
+                messages=msgs,
+                **({"max_output_tokens": max_output_tokens} if max_output_tokens else {}),
+            ) as stream:
+                for event in stream:
+                    if event.type == "response.output_text.delta":
+                        parts.append(event.delta)
+                stream.close()
+            return "".join(parts)
+        except Exception as e:
+            sleep_s = backoff + random.uniform(0, 0.5)
+            log.warning(f"[stream attempt {attempt}] Error {type(e).__name__}, sleep {sleep_s:.2f}s")
+            time.sleep(sleep_s)
+            backoff = min(backoff * 2, 8.0)
+
+    raise RuntimeError("스트리밍 폴백까지 실패했습니다.")
