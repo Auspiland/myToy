@@ -147,7 +147,7 @@ def response_GPT_with_stream_fallback(
         try:
             parts = []
             with client.responses.stream(
-                model=model,
+                model="gpt-4o",
                 messages=msgs,
                 **({"max_output_tokens": max_output_tokens} if max_output_tokens else {}),
             ) as stream:
