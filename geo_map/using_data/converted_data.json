@@ -28,7 +28,7 @@
           "product_level": "Level2SR",
           "acquisition_date": "2024-06-20",
           "create_time": null,
-          "region_text": "경기도 북서부 포함, 강원도 서부 포함, 황해북도 남동부 포함, 황해남도 동부 포함",
+          "region_text": "조선민주주의인민공화국 황해북도 토산군 중심, 경기도 북서부 포함, 강원도 서부 포함, 황해북도 전체, 황해남도 동부 포함",
           "geometry": {
             "type": "envelope",
             "coordinates": [
@@ -75,7 +75,7 @@
           "product_level": "Level2SR",
           "acquisition_date": "2024-03-27",
           "create_time": null,
-          "region_text": "충청북도 서부 포함, 충청남도 북동부 포함, 세종특별자치시 북부 포함, 경기도 남부 포함",
+          "region_text": "대한민국 충청남도 천안시 서북구 성거읍 중심, 충청북도 서부 포함, 충청남도 북동부 포함, 세종특별자치시 북부 포함, 경기도 남부 포함",
           "geometry": {
             "type": "envelope",
             "coordinates": [
@@ -122,7 +122,7 @@
           "product_level": "Level2SR",
           "acquisition_date": "2024-06-28",
           "create_time": null,
-          "region_text": "황해남도 동부 포함, 황해북도 남동부 포함",
+          "region_text": "조선민주주의인민공화국 황해북도 린산군 중심, 황해남도 대부분, 황해북도 전체",
           "geometry": {
             "type": "envelope",
             "coordinates": [
@@ -169,7 +169,7 @@
           "product_level": "Level2SR",
           "acquisition_date": "2020-07-31",
           "create_time": null,
-          "region_text": "강원도 북서부 포함, 황해북도 동부 포함",
+          "region_text": "조선민주주의인민공화국 황해북도 곡산군 중심, 강원도 북서부 포함, 황해북도 전체",
           "geometry": {
             "type": "envelope",
             "coordinates": [
@@ -216,7 +216,7 @@
           "product_level": "Level2SR",
           "acquisition_date": "2020-06-21",
           "create_time": null,
-          "region_text": "강원도 서부 포함, 경기도 북부 포함",
+          "region_text": "대한민국 강원도 철원군 중심, 강원도 대부분, 경기도 북부 포함, 황해북도 동부 포함",
           "geometry": {
             "type": "envelope",
             "coordinates": [
@@ -263,7 +263,7 @@
           "product_level": "Level2SR",
           "acquisition_date": "2024-10-26",
           "create_time": null,
-          "region_text": "황해남도 동부 포함, 황해북도 남동부 포함",
+          "region_text": "조선민주주의인민공화국 황해북도 린산군 중심, 황해남도 대부분, 황해북도 전체",
           "geometry": {
             "type": "envelope",
             "coordinates": [
@@ -310,7 +310,7 @@
           "product_level": "Level2SR",
           "acquisition_date": "2024-10-08",
           "create_time": null,
-          "region_text": "전라북도 남부 포함, 전라남도 북부 포함",
+          "region_text": "대한민국 전라북도 고창군 중심, 전라북도 남부 포함, 전라남도 북부 포함",
           "geometry": {
             "type": "envelope",
             "coordinates": [
@@ -357,7 +357,7 @@
           "product_level": "Level2SR",
           "acquisition_date": "2024-09-28",
           "create_time": null,
-          "region_text": "충청북도 서부 포함, 충청남도 북동부 포함, 세종특별자치시 북부 포함, 경기도 남부 포함",
+          "region_text": "대한민국 충청남도 천안시 서북구 성거읍 중심, 충청북도 서부 포함, 충청남도 북동부 포함, 세종특별자치시 북부 포함, 경기도 남부 포함",
           "geometry": {
             "type": "envelope",
             "coordinates": [
@@ -404,7 +404,7 @@
           "product_level": "Level2SR",
           "acquisition_date": "2024-04-09",
           "create_time": null,
-          "region_text": "평안남도 동부 포함, 평안북도 남동부 포함",
+          "region_text": "조선민주주의인민공화국 평안남도 북창군 중심, 평안남도 전체, 평안북도 남동부 포함",
           "geometry": {
             "type": "envelope",
             "coordinates": [
@@ -451,7 +451,7 @@
           "product_level": "Level2SR",
           "acquisition_date": "2022-06-01",
           "create_time": null,
-          "region_text": "강원도 북서부 포함",
+          "region_text": "조선민주주의인민공화국 강원도 세포군 중심, 강원도 대부분",
           "geometry": {
             "type": "envelope",
             "coordinates": [
