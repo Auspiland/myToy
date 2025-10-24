@@ -135,8 +135,8 @@ def apply_fix_table(in_path, out_path, fix_table):
 # -------------------- 사용 예 --------------------
 seed_map = {"Democratic People's Republic of Korea (the)": "조선민주주의인민공화국"}
 process_geojson(
-    in_path=r"C:\Users\T3Q\jeonghan\Eunhyea_Asist\geo_map\prk_adm_wfp_20190624_shp\prk_admbnda_adm2_wfp_20190624.geojson",
-    out_path=r"C:\Users\T3Q\jeonghan\Eunhyea_Asist\geo_map\prk_adm_wfp_20190624_shp\new_prk_admbnda_adm2_wfp_20190624.geojson",
+    in_path=r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map\prk_adm_wfp_20190624_shp\prk_admbnda_adm2_wfp_20190624.geojson",
+    out_path=r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map\prk_adm_wfp_20190624_shp\new_prk_admbnda_adm2_wfp_20190624.geojson",
     seed_map=seed_map
 )
 
@@ -151,6 +151,6 @@ fix_table = {
     "Kophung": "Kopung",         # 영문 표기 수정 권장
     "Taegwan": "Daegwan",        # 영문 표기 통일
 }
-file = r"C:\Users\T3Q\jeonghan\Eunhyea_Asist\geo_map\prk_adm_wfp_20190624_shp\new_prk_admbnda_adm2_wfp_20190624.geojson"
+file = r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map\prk_adm_wfp_20190624_shp\new_prk_admbnda_adm2_wfp_20190624.geojson"
 
 apply_fix_table(file,file,fix_table)

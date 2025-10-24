@@ -1,0 +1,489 @@
+{
+  "took": 3,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": {
+      "value": 2103,
+      "relation": "eq"
+    },
+    "max_score": 1,
+    "hits": [
+      {
+        "_index": "satellite_metadata",
+        "_id": "W3Ve7ZkB_1EqBL0JWuTI",
+        "_score": 1,
+        "_source": {
+          "id": null,
+          "title": "CAS500-4_AEISS-C",
+          "satellite": "CAS500-4",
+          "sensor": "AEISS-C",
+          "tile_id": "88",
+          "product_type": null,
+          "product_level": "Level2SR",
+          "acquisition_date": "2024-06-20",
+          "create_time": null,
+          "region_text": "경기도 북서부 포함, 강원도 서부 포함, 황해북도 남동부 포함, 황해남도 동부 포함",
+          "geometry": {
+            "type": "envelope",
+            "coordinates": [
+              [
+                126.34827086975953,
+                38.453760025906824
+              ],
+              [
+                126.93619129881695,
+                37.98996965016792
+              ]
+            ]
+          },
+          "stats_min": null,
+          "stats_max": null,
+          "stats_mean": null,
+          "stats_stddev": null,
+          "image_file": null,
+          "source_file": "C4_20240620021539_R003_088_L2SR_Aux.xml",
+          "orbit_number": "003",
+          "orbit_direction": "DESCENDING",
+          "projection": "UTM-K",
+          "ellipsoid": "WGS84",
+          "image_file_list": [
+            "C4_20240620021539_R003_088_L2SR_B.tif",
+            "C4_20240620021539_R003_088_L2SR_G.tif",
+            "C4_20240620021539_R003_088_L2SR_R.tif",
+            "C4_20240620021539_R003_088_L2SR_RE.tif",
+            "C4_20240620021539_R003_088_L2SR_N.tif"
+          ]
+        }
+      },
+      {
+        "_index": "satellite_metadata",
+        "_id": "XHVe7ZkB_1EqBL0JWuTP",
+        "_score": 1,
+        "_source": {
+          "id": null,
+          "title": "CAS500-4_AEISS-C",
+          "satellite": "CAS500-4",
+          "sensor": "AEISS-C",
+          "tile_id": "123",
+          "product_type": null,
+          "product_level": "Level2SR",
+          "acquisition_date": "2024-03-27",
+          "create_time": null,
+          "region_text": "충청북도 서부 포함, 충청남도 북동부 포함, 세종특별자치시 북부 포함, 경기도 남부 포함",
+          "geometry": {
+            "type": "envelope",
+            "coordinates": [
+              [
+                126.93167575079963,
+                37.10314793150034
+              ],
+              [
+                127.50557082786963,
+                36.64210788827871
+              ]
+            ]
+          },
+          "stats_min": null,
+          "stats_max": null,
+          "stats_mean": null,
+          "stats_stddev": null,
+          "image_file": null,
+          "source_file": "C4_20240327021531_R003_123_L2SR_Aux.xml",
+          "orbit_number": "003",
+          "orbit_direction": "DESCENDING",
+          "projection": "UTM-K",
+          "ellipsoid": "WGS84",
+          "image_file_list": [
+            "C4_20240327021531_R003_123_L2SR_B.tif",
+            "C4_20240327021531_R003_123_L2SR_G.tif",
+            "C4_20240327021531_R003_123_L2SR_R.tif",
+            "C4_20240327021531_R003_123_L2SR_RE.tif",
+            "C4_20240327021531_R003_123_L2SR_N.tif"
+          ]
+        }
+      },
+      {
+        "_index": "satellite_metadata",
+        "_id": "XXVe7ZkB_1EqBL0JWuTU",
+        "_score": 1,
+        "_source": {
+          "id": null,
+          "title": "CAS500-4_AEISS-C",
+          "satellite": "CAS500-4",
+          "sensor": "AEISS-C",
+          "tile_id": "87",
+          "product_type": null,
+          "product_level": "Level2SR",
+          "acquisition_date": "2024-06-28",
+          "create_time": null,
+          "region_text": "황해남도 동부 포함, 황해북도 남동부 포함",
+          "geometry": {
+            "type": "envelope",
+            "coordinates": [
+              [
+                125.77547175189676,
+                38.449584272792556
+              ],
+              [
+                126.36682188510434,
+                37.983052153101866
+              ]
+            ]
+          },
+          "stats_min": null,
+          "stats_max": null,
+          "stats_mean": null,
+          "stats_stddev": null,
+          "image_file": null,
+          "source_file": "C4_20240628022551_R046_087_L2SR_Aux.xml",
+          "orbit_number": "046",
+          "orbit_direction": "DESCENDING",
+          "projection": "UTM-K",
+          "ellipsoid": "WGS84",
+          "image_file_list": [
+            "C4_20240628022551_R046_087_L2SR_B.tif",
+            "C4_20240628022551_R046_087_L2SR_G.tif",
+            "C4_20240628022551_R046_087_L2SR_R.tif",
+            "C4_20240628022551_R046_087_L2SR_RE.tif",
+            "C4_20240628022551_R046_087_L2SR_N.tif"
+          ]
+        }
+      },
+      {
+        "_index": "satellite_metadata",
+        "_id": "XnVe7ZkB_1EqBL0JWuTZ",
+        "_score": 1,
+        "_source": {
+          "id": null,
+          "title": "CAS500-4_AEISS-C",
+          "satellite": "CAS500-4",
+          "sensor": "AEISS-C",
+          "tile_id": "78",
+          "product_type": null,
+          "product_level": "Level2SR",
+          "acquisition_date": "2020-07-31",
+          "create_time": null,
+          "region_text": "강원도 북서부 포함, 황해북도 동부 포함",
+          "geometry": {
+            "type": "envelope",
+            "coordinates": [
+              [
+                126.3410283441966,
+                38.904330423254954
+              ],
+              [
+                126.93270313321042,
+                38.44050741118712
+              ]
+            ]
+          },
+          "stats_min": null,
+          "stats_max": null,
+          "stats_mean": null,
+          "stats_stddev": null,
+          "image_file": null,
+          "source_file": "C4_20200731021609_R003_078_L2SR_Aux.xml",
+          "orbit_number": "003",
+          "orbit_direction": "DESCENDING",
+          "projection": "UTM-K",
+          "ellipsoid": "WGS84",
+          "image_file_list": [
+            "C4_20200731021609_R003_078_L2SR_B.tif",
+            "C4_20200731021609_R003_078_L2SR_G.tif",
+            "C4_20200731021609_R003_078_L2SR_R.tif",
+            "C4_20200731021609_R003_078_L2SR_RE.tif",
+            "C4_20200731021609_R003_078_L2SR_N.tif"
+          ]
+        }
+      },
+      {
+        "_index": "satellite_metadata",
+        "_id": "X3Ve7ZkB_1EqBL0JWuTe",
+        "_score": 1,
+        "_source": {
+          "id": null,
+          "title": "CAS500-4_AEISS-C",
+          "satellite": "CAS500-4",
+          "sensor": "AEISS-C",
+          "tile_id": "89",
+          "product_type": null,
+          "product_level": "Level2SR",
+          "acquisition_date": "2020-06-21",
+          "create_time": null,
+          "region_text": "강원도 서부 포함, 경기도 북부 포함",
+          "geometry": {
+            "type": "envelope",
+            "coordinates": [
+              [
+                126.92122995938001,
+                38.45513363932374
+              ],
+              [
+                127.50567322650673,
+                37.99413233733913
+              ]
+            ]
+          },
+          "stats_min": null,
+          "stats_max": null,
+          "stats_mean": null,
+          "stats_stddev": null,
+          "image_file": null,
+          "source_file": "C4_20200621021609_R003_089_L2SR_Aux.xml",
+          "orbit_number": "003",
+          "orbit_direction": "DESCENDING",
+          "projection": "UTM-K",
+          "ellipsoid": "WGS84",
+          "image_file_list": [
+            "C4_20200621021609_R003_089_L2SR_B.tif",
+            "C4_20200621021609_R003_089_L2SR_G.tif",
+            "C4_20200621021609_R003_089_L2SR_R.tif",
+            "C4_20200621021609_R003_089_L2SR_RE.tif",
+            "C4_20200621021609_R003_089_L2SR_N.tif"
+          ]
+        }
+      },
+      {
+        "_index": "satellite_metadata",
+        "_id": "YHVe7ZkB_1EqBL0JWuTj",
+        "_score": 1,
+        "_source": {
+          "id": null,
+          "title": "CAS500-4_AEISS-C",
+          "satellite": "CAS500-4",
+          "sensor": "AEISS-C",
+          "tile_id": "87",
+          "product_type": null,
+          "product_level": "Level2SR",
+          "acquisition_date": "2024-10-26",
+          "create_time": null,
+          "region_text": "황해남도 동부 포함, 황해북도 남동부 포함",
+          "geometry": {
+            "type": "envelope",
+            "coordinates": [
+              [
+                125.77547175189676,
+                38.449584272792556
+              ],
+              [
+                126.36682188510434,
+                37.983052153101866
+              ]
+            ]
+          },
+          "stats_min": null,
+          "stats_max": null,
+          "stats_mean": null,
+          "stats_stddev": null,
+          "image_file": null,
+          "source_file": "C4_20241026022801_R046_087_L2SR_Aux.xml",
+          "orbit_number": "046",
+          "orbit_direction": "DESCENDING",
+          "projection": "UTM-K",
+          "ellipsoid": "WGS84",
+          "image_file_list": [
+            "C4_20241026022801_R046_087_L2SR_B.tif",
+            "C4_20241026022801_R046_087_L2SR_G.tif",
+            "C4_20241026022801_R046_087_L2SR_R.tif",
+            "C4_20241026022801_R046_087_L2SR_RE.tif",
+            "C4_20241026022801_R046_087_L2SR_N.tif"
+          ]
+        }
+      },
+      {
+        "_index": "satellite_metadata",
+        "_id": "YXVe7ZkB_1EqBL0JWuTo",
+        "_score": 1,
+        "_source": {
+          "id": null,
+          "title": "CAS500-4_AEISS-C",
+          "satellite": "CAS500-4",
+          "sensor": "AEISS-C",
+          "tile_id": "144",
+          "product_type": null,
+          "product_level": "Level2SR",
+          "acquisition_date": "2024-10-08",
+          "create_time": null,
+          "region_text": "전라북도 남부 포함, 전라남도 북부 포함",
+          "geometry": {
+            "type": "envelope",
+            "coordinates": [
+              [
+                126.38849420973722,
+                35.74960723451608
+              ],
+              [
+                126.95556539789946,
+                35.28599946272102
+              ]
+            ]
+          },
+          "stats_min": null,
+          "stats_max": null,
+          "stats_mean": null,
+          "stats_stddev": null,
+          "image_file": null,
+          "source_file": "C4_20241008021529_R003_144_L2SR_Aux.xml",
+          "orbit_number": "003",
+          "orbit_direction": "DESCENDING",
+          "projection": "UTM-K",
+          "ellipsoid": "WGS84",
+          "image_file_list": [
+            "C4_20241008021529_R003_144_L2SR_B.tif",
+            "C4_20241008021529_R003_144_L2SR_G.tif",
+            "C4_20241008021529_R003_144_L2SR_R.tif",
+            "C4_20241008021529_R003_144_L2SR_RE.tif",
+            "C4_20241008021529_R003_144_L2SR_N.tif"
+          ]
+        }
+      },
+      {
+        "_index": "satellite_metadata",
+        "_id": "YnVe7ZkB_1EqBL0JWuTt",
+        "_score": 1,
+        "_source": {
+          "id": null,
+          "title": "CAS500-4_AEISS-C",
+          "satellite": "CAS500-4",
+          "sensor": "AEISS-C",
+          "tile_id": "123",
+          "product_type": null,
+          "product_level": "Level2SR",
+          "acquisition_date": "2024-09-28",
+          "create_time": null,
+          "region_text": "충청북도 서부 포함, 충청남도 북동부 포함, 세종특별자치시 북부 포함, 경기도 남부 포함",
+          "geometry": {
+            "type": "envelope",
+            "coordinates": [
+              [
+                126.93167575079963,
+                37.10314793150034
+              ],
+              [
+                127.50557082786963,
+                36.64210788827871
+              ]
+            ]
+          },
+          "stats_min": null,
+          "stats_max": null,
+          "stats_mean": null,
+          "stats_stddev": null,
+          "image_file": null,
+          "source_file": "C4_20240928021529_R003_123_L2SR_Aux.xml",
+          "orbit_number": "003",
+          "orbit_direction": "DESCENDING",
+          "projection": "UTM-K",
+          "ellipsoid": "WGS84",
+          "image_file_list": [
+            "C4_20240928021529_R003_123_L2SR_B.tif",
+            "C4_20240928021529_R003_123_L2SR_G.tif",
+            "C4_20240928021529_R003_123_L2SR_R.tif",
+            "C4_20240928021529_R003_123_L2SR_RE.tif",
+            "C4_20240928021529_R003_123_L2SR_N.tif"
+          ]
+        }
+      },
+      {
+        "_index": "satellite_metadata",
+        "_id": "Y3Ve7ZkB_1EqBL0JWuT0",
+        "_score": 1,
+        "_source": {
+          "id": null,
+          "title": "CAS500-4_AEISS-C",
+          "satellite": "CAS500-4",
+          "sensor": "AEISS-C",
+          "tile_id": "63",
+          "product_type": null,
+          "product_level": "Level2SR",
+          "acquisition_date": "2024-04-09",
+          "create_time": null,
+          "region_text": "평안남도 동부 포함, 평안북도 남동부 포함",
+          "geometry": {
+            "type": "envelope",
+            "coordinates": [
+              [
+                125.74220721958996,
+                39.80098510236139
+              ],
+              [
+                126.34531494895708,
+                39.334217236102624
+              ]
+            ]
+          },
+          "stats_min": null,
+          "stats_max": null,
+          "stats_mean": null,
+          "stats_stddev": null,
+          "image_file": null,
+          "source_file": "C4_20240409022531_R046_063_L2SR_Aux.xml",
+          "orbit_number": "046",
+          "orbit_direction": "DESCENDING",
+          "projection": "UTM-K",
+          "ellipsoid": "WGS84",
+          "image_file_list": [
+            "C4_20240409022531_R046_063_L2SR_B.tif",
+            "C4_20240409022531_R046_063_L2SR_G.tif",
+            "C4_20240409022531_R046_063_L2SR_R.tif",
+            "C4_20240409022531_R046_063_L2SR_RE.tif",
+            "C4_20240409022531_R046_063_L2SR_N.tif"
+          ]
+        }
+      },
+      {
+        "_index": "satellite_metadata",
+        "_id": "ZHVe7ZkB_1EqBL0JWuT4",
+        "_score": 1,
+        "_source": {
+          "id": null,
+          "title": "CAS500-4_AEISS-C",
+          "satellite": "CAS500-4",
+          "sensor": "AEISS-C",
+          "tile_id": "79",
+          "product_type": null,
+          "product_level": "Level2SR",
+          "acquisition_date": "2022-06-01",
+          "create_time": null,
+          "region_text": "강원도 북서부 포함",
+          "geometry": {
+            "type": "envelope",
+            "coordinates": [
+              [
+                126.91758968595008,
+                38.905726213756076
+              ],
+              [
+                127.50570891168796,
+                38.44473756204513
+              ]
+            ]
+          },
+          "stats_min": null,
+          "stats_max": null,
+          "stats_mean": null,
+          "stats_stddev": null,
+          "image_file": null,
+          "source_file": "C4_20220601021559_R003_079_L2SR_Aux.xml",
+          "orbit_number": "003",
+          "orbit_direction": "DESCENDING",
+          "projection": "UTM-K",
+          "ellipsoid": "WGS84",
+          "image_file_list": [
+            "C4_20220601021559_R003_079_L2SR_B.tif",
+            "C4_20220601021559_R003_079_L2SR_G.tif",
+            "C4_20220601021559_R003_079_L2SR_R.tif",
+            "C4_20220601021559_R003_079_L2SR_RE.tif",
+            "C4_20220601021559_R003_079_L2SR_N.tif"
+          ]
+        }
+      }
+    ]
+  }
+}
