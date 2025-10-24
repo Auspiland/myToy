@@ -123,64 +123,7 @@ def get_region_representative_name(features, region_name, coverage_ratio, rect_c
     # 중심을 찾지 못한 경우
     return f"{region_name} 일부 포함"
 
-def get_region_boundary(features, region_name):
-    """
-    특정 행정구역 이름을 입력하면 경계 좌표 및 중심 좌표를 반환.
-
-    Parameters:
-    - features: load_features의 반환값
-    - region_name: 찾고자 하는 행정구역 이름 (예: "서울특별시", "강남구", "평양시")
-
-    Returns:
-    - dict: {
-        "found": True/False,
-        "name": 찾은 행정구역 이름,
-        "bounds": [min_lon, min_lat, max_lon, max_lat],  # 경계 박스
-        "center": [lon, lat],  # 중심 좌표
-        "boundary_coords": [[lon1, lat1], [lon2, lat2], ...]  # 실제 경계 좌표들
-    }
-    - 찾지 못한 경우: {"found": False}
-    """
-    for feature_data in features:
-        # 이전 버전 호환성 처리
-        if len(feature_data) >= 5:
-            g, pg, nm, all_names, center_coords = feature_data
-        else:
-            g, pg, nm, all_names = feature_data[:4]
-            center_coords = None
-
-        # all_names에서 매칭되는 이름 찾기
-        if region_name in all_names:
-            # 경계 박스
-            minx, miny, maxx, maxy = g.bounds
-
-            # 중심 좌표
-            centroid = g.centroid
-            center_lon, center_lat = centroid.x, centroid.y
-
-            # 경계 좌표 추출
-            boundary_coords = []
-            if g.geom_type == 'Polygon':
-                boundary_coords = list(g.exterior.coords)
-            elif g.geom_type == 'MultiPolygon':
-                # MultiPolygon의 경우 가장 큰 폴리곤 선택
-                largest_polygon = max(g.geoms, key=lambda p: p.area)
-                boundary_coords = list(largest_polygon.exterior.coords)
-
-            # 좌표를 [lon, lat] 형식으로 변환
-            boundary_coords = [[coord[0], coord[1]] for coord in boundary_coords]
-
-            return {
-                "found": True,
-                "name": region_name,
-                "bounds": [minx, miny, maxx, maxy],
-                "center": [center_lon, center_lat],
-                "boundary_coords": boundary_coords
-            }
-
-    return {"found": False}
-
-def query_regions_in_rect(features, rect_coords):
+def query_regions_in_rect(features, rect_coords, only_representive_text = False) -> dict:
     """
     사각형 영역(rect_coords)에 포함되는 행정구역들을 반환.
 
@@ -198,8 +141,10 @@ def query_regions_in_rect(features, rect_coords):
     }
     """
     # 사각형 Polygon 생성
-    if len(rect_coords) != 4:
-        raise ValueError("rect_coords는 4개의 좌표를 가져야 합니다.")
+    if len(rect_coords) < 4:
+        raise ValueError("rect_coords는 4개 이상의 좌표를 가져야 합니다.")
+    elif len(rect_coords) > 4:
+        rect_coords = rect_coords[:4]
 
     rect_polygon = Polygon(rect_coords)
     if not rect_polygon.is_valid:
@@ -286,6 +231,9 @@ def query_regions_in_rect(features, rect_coords):
         distance_info = find_nearest_region_info(features, center_lon, center_lat)
         representative = distance_info if distance_info else []
 
+    if only_representive_text:
+        return {"representative": ", ".join(representative)}
+
     return {
         "representative": representative,
         "fully_contained": fully_contained,
@@ -296,16 +244,158 @@ def query_regions_in_rect(features, rect_coords):
     }
 
 
+class Rect2Region():
+    def __init__(self, files=None):
+        if files == None:
+            BASE_PATH = r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map\using_data"
+            files = (
+                os.path.join(BASE_PATH, "boundaries_KR_20220407.geojson"),
+                os.path.join(BASE_PATH, "new_prk_admbnda_adm2_wfp_20190624.geojson")
+            )
+            
+        self.features = load_features(files)
+
+        self.test_idx = 0
+    
+    def convert(self,rect_coords, only_representive_text = False):
+        result = query_regions_in_rect(self.features, rect_coords, only_representive_text = only_representive_text)
+        return result
+
+    def convert_many(self,rect_coords_list, only_representive_text = False):
+        result = []
+        for rect in rect_coords_list:
+            result.append(self.convert(rect, only_representive_text = only_representive_text))
+        return result
+    
+    def show(self, result):
+        print("=" * 80)
+        print(f"테스트 {self.test_idx}")
+        print("=" * 80)
+        print(f"사각형 좌표: {rect_coords}")
+        print(f"중심 좌표: {result['center']}")
+        print()
+        print(f"광역 단위 대표 표현: {result['representative']}")
+        print(f"완전히 포함된 지역: {result['fully_contained']}")
+        print(f"전체 지역 (완전+일부): {result['all_regions']}")
+        print()
+        self.test_idx += 1
+
+    def convert_json_file(self, input_file, output_file):
+        """
+        경고!!!: 특정 스키마로 고정된 함수임. 스키마 권토 권고.
+
+        data.json의 region_text를 변환하여 converted_data.json 생성
+
+        Parameters:
+        - input_file: 입력 JSON 파일 경로
+        - output_file: 출력 JSON 파일 경로
+        """
+        import json
+
+        # data.json 읽기
+        print("데이터를 읽는 중...")
+        with open(input_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        # hits.hits 배열 처리
+        total_hits = len(data['hits']['hits'])
+        print(f"총 {total_hits}개의 항목을 처리합니다...")
+
+        for idx, hit in enumerate(data['hits']['hits']):
+            if (idx + 1) % 100 == 0:
+                print(f"진행 중: {idx + 1}/{total_hits}")
+
+            # region_text 가져오기
+            region_text = hit['_source'].get('region_text')
+
+            if region_text:
+                # JSON 문자열을 파싱
+                if isinstance(region_text, str):
+                    region_coords = json.loads(region_text)
+                else:
+                    region_coords = region_text
+
+                # 첫 4개 좌표만 슬라이싱 (N,2) 형태의 리스트에서
+                rect_coords = region_coords[:4]
+
+                # converter.convert 호출
+                result = self.convert(rect_coords)
+
+                # representative 리스트를 ", "로 조인
+                converted_text = ", ".join(result['representative'])
+
+                # region_text 대체
+                hit['_source']['region_text'] = converted_text
+
+        # 변환된 데이터를 새 파일로 저장
+        print("변환된 데이터를 저장하는 중...")
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+        print(f"완료! 변환된 데이터가 {output_file}에 저장되었습니다.")
+
+
+    def get_region_boundary(self, region_name):
+        """
+        특정 행정구역 이름을 입력하면 경계 좌표 및 중심 좌표를 반환.
+
+        Parameters:
+        - features: load_features의 반환값
+        - region_name: 찾고자 하는 행정구역 이름 (예: "서울특별시", "강남구", "평양시")
+
+        Returns:
+        - dict: {
+            "found": True/False,
+            "name": 찾은 행정구역 이름,
+            "bounds": [min_lon, min_lat, max_lon, max_lat],  # 경계 박스
+            "center": [lon, lat],  # 중심 좌표
+            "boundary_coords": [[lon1, lat1], [lon2, lat2], ...]  # 실제 경계 좌표들
+        }
+        - 찾지 못한 경우: {"found": False}
+        """
+        for feature_data in self.features:
+            # 이전 버전 호환성 처리
+            if len(feature_data) >= 5:
+                g, pg, nm, all_names, center_coords = feature_data
+            else:
+                g, pg, nm, all_names = feature_data[:4]
+                center_coords = None
+
+            # all_names에서 매칭되는 이름 찾기
+            if region_name in all_names:
+                # 경계 박스
+                minx, miny, maxx, maxy = g.bounds
+
+                # 중심 좌표
+                centroid = g.centroid
+                center_lon, center_lat = centroid.x, centroid.y
+
+                # 경계 좌표 추출
+                boundary_coords = []
+                if g.geom_type == 'Polygon':
+                    boundary_coords = list(g.exterior.coords)
+                elif g.geom_type == 'MultiPolygon':
+                    # MultiPolygon의 경우 가장 큰 폴리곤 선택
+                    largest_polygon = max(g.geoms, key=lambda p: p.area)
+                    boundary_coords = list(largest_polygon.exterior.coords)
+
+                # 좌표를 [lon, lat] 형식으로 변환
+                boundary_coords = [[coord[0], coord[1]] for coord in boundary_coords]
+
+                return {
+                    "found": True,
+                    "name": region_name,
+                    "bounds": [minx, miny, maxx, maxy],
+                    "center": [center_lon, center_lat],
+                    "boundary_coords": boundary_coords
+                }
+
+        return {"found": False}
+
+
 # ---------------- 사용 예 ----------------
 if __name__ == "__main__":
-    BASE_PATH = r"C:\Users\T3Q\jeonghan\Eunhyea_Asist\geo_map\using_data"
-
-    files = (
-        os.path.join(BASE_PATH, "boundaries_KR_20220407.geojson"),
-        os.path.join(BASE_PATH, "new_prk_admbnda_adm2_wfp_20190624.geojson")
-    )
-
-    features = load_features(files)
+    converter = Rect2Region()
 
     # 테스트 케이스 1: 사용자 제공 좌표
     rect_coords = [
@@ -315,18 +405,8 @@ if __name__ == "__main__":
         [127.50553754496315, 36.643447265652945]
     ]
 
-    result = query_regions_in_rect(features, rect_coords)
-
-    print("=" * 80)
-    print("테스트 1: 사용자 제공 좌표")
-    print("=" * 80)
-    print(f"사각형 좌표: {rect_coords}")
-    print(f"중심 좌표: {result['center']}")
-    print()
-    print(f"광역 단위 대표 표현: {result['representative']}")
-    print(f"완전히 포함된 지역: {result['fully_contained']}")
-    print(f"전체 지역 (완전+일부): {result['all_regions']}")
-    print()
+    result1 = converter.convert(rect_coords)
+    converter.show(result1)
 
     # 테스트 케이스 2: 서울 전체를 포함하는 사각형
     rect_coords_seoul = [
@@ -336,18 +416,8 @@ if __name__ == "__main__":
         [127.3, 37.4]
     ]
 
-    result2 = query_regions_in_rect(features, rect_coords_seoul)
-
-    print("=" * 80)
-    print("테스트 2: 서울 지역")
-    print("=" * 80)
-    print(f"사각형 좌표: {rect_coords_seoul}")
-    print(f"중심 좌표: {result2['center']}")
-    print()
-    print(f"광역 단위 대표 표현: {result2['representative']}")
-    print(f"완전히 포함된 지역: {result2['fully_contained']}")
-    print(f"전체 지역 (완전+일부): {result2['all_regions']}")
-    print()
+    result2 = converter.convert(rect_coords_seoul)
+    converter.show(result2)
 
     # 테스트 케이스 3: 바다 한가운데 (범위 밖)
     rect_coords_ocean = [
@@ -357,21 +427,22 @@ if __name__ == "__main__":
         [121.0, 34.0]
     ]
 
-    result3 = query_regions_in_rect(features, rect_coords_ocean)
+    result3 = converter.convert(rect_coords_ocean)
+    converter.show(result3)
 
-    print("=" * 80)
-    print("테스트 3: 바다 (범위 밖)")
-    print("=" * 80)
-    print(f"사각형 좌표: {rect_coords_ocean}")
-    print(f"중심 좌표: {result3['center']}")
-    print()
-    print(f"광역 단위 대표 표현: {result3['representative']}")
-    print(f"완전히 포함된 지역: {result3['fully_contained']}")
-    print(f"전체 지역 (완전+일부): {result3['all_regions']}")
 
     print("=" * 80)
 
-    result4 = get_region_boundary(features,"서울특별시")
+    result4 = converter.get_region_boundary("서울특별시")
     print(result4['name'])
     print(result4['bounds'])
     print(result4['center'])
+
+    print("=" * 80)
+    print("JSON 파일 변환 예제")
+    print("=" * 80)
+
+    # JSON 파일 변환 실행
+    input_file = r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map\using_data\data.json"
+    output_file = r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map\using_data\converted_data.json"
+    converter.convert_json_file(input_file, output_file)

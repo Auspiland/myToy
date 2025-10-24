@@ -6,7 +6,7 @@ import json
 import os
 from shapely.geometry import shape
 
-BASE_PATH = r"C:\Users\T3Q\jeonghan\Eunhyea_Asist\geo_map\using_data"
+BASE_PATH = r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map\using_data"
 
 # 처리할 파일들
 TARGET_FILES = [
