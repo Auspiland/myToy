@@ -32,12 +32,12 @@ def is_district_level(name):
     district_suffixes = ('구', '군', '구역')
     return any(name.endswith(suffix) for suffix in district_suffixes)
 
-BASE_PATH = r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map"
+from config import BASE_PATH
 
 # 파일 로드
 files = [
-    os.path.join(BASE_PATH,"ns_korea_shp","boundaries_KR_20220407.geojson"),
-    os.path.join(BASE_PATH,"prk_adm_wfp_20190624_shp","new_prk_admbnda_adm2_wfp_20190624.geojson")
+    os.path.join(BASE_PATH, "ns_korea_shp", "boundaries_KR_20220407.geojson"),
+    os.path.join(BASE_PATH, "prk_adm_wfp_20190624_shp", "new_prk_admbnda_adm2_wfp_20190624.geojson")
 ]
 
 features = []

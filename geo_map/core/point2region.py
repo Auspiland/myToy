@@ -29,6 +29,12 @@ def _get_name(props: dict):
             return str(v)
     return None
 
+def _unpack_feature(feature_data):
+    """feature_data 튜플 언패킹 (이전 버전 호환성)."""
+    if len(feature_data) >= 5:
+        return feature_data
+    return feature_data[:4] + (None,)
+
 def _get_admin_level(name: str):
     """
     행정구역 이름의 레벨을 반환. 낮을수록 상위 레벨.
@@ -98,18 +104,12 @@ def query_names_at_lonlat(features, lon, lat, eps=1e-9):
 
     out = []
     for feature_data in features:
-        # 이전 버전 호환성 처리
-        if len(feature_data) >= 5:
-            g, pg, nm, all_names, center_coords = feature_data
-        else:
-            g, pg, nm, all_names = feature_data[:4]
-            center_coords = None
+        g, pg, nm, all_names, center_coords = _unpack_feature(feature_data)
 
         minx, miny, maxx, maxy = g.bounds
         if not (minx <= lon <= maxx and miny <= lat <= maxy):
             continue
         if pg.covers(pt) or g.intersects(pt_buf):
-            # all_names에 있는 모든 값을 추가
             for name in all_names:
                 if name not in out:
                     out.append(name)
@@ -188,12 +188,7 @@ def find_nearest_region_info(features, lon, lat):
 
     # 구/군/구역 단위만 필터링하여 가장 가까운 행정구역 찾기
     for feature_data in features:
-        # 이전 버전 호환성 처리
-        if len(feature_data) >= 5:
-            g, pg, nm, all_names, center_coords = feature_data
-        else:
-            g, pg, nm, all_names = feature_data[:4]
-            center_coords = None
+        g, pg, nm, all_names, center_coords = _unpack_feature(feature_data)
 
         if not is_district_level(nm):
             continue
@@ -226,12 +221,7 @@ def find_nearest_region_info(features, lon, lat):
 
     parent_regions = []
     for feature_data in features:
-        # 이전 버전 호환성 처리
-        if len(feature_data) >= 5:
-            g, pg, nm, all_names, center_coords = feature_data
-        else:
-            g, pg, nm, all_names = feature_data[:4]
-            center_coords = None
+        g, pg, nm, all_names, center_coords = _unpack_feature(feature_data)
 
         minx, miny, maxx, maxy = g.bounds
         if not (minx <= boundary_lon <= maxx and miny <= boundary_lat <= maxy):
@@ -278,10 +268,11 @@ def find_nearest_region_info(features, lon, lat):
 
 # ---------------- 사용 예 ----------------
 if __name__ == "__main__":
-    BASE_PATH = r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map\using_data"
+    from config import BASE_PATH
 
-    files = (os.path.join(BASE_PATH,"boundaries_KR_20220407.geojson"),
-             os.path.join(BASE_PATH,"new_prk_admbnda_adm2_wfp_20190624.geojson"))
+    using_data_path = os.path.join(BASE_PATH, "using_data")
+    files = (os.path.join(using_data_path, "boundaries_KR_20220407.geojson"),
+             os.path.join(using_data_path, "new_prk_admbnda_adm2_wfp_20190624.geojson"))
 
     features = load_features(files)
 
