@@ -2,8 +2,9 @@
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
 
-from shapely.geometry import Polygon, Point
+from shapely.geometry import Polygon, Point, mapping
 from shapely.validation import make_valid
+from shapely.geometry.polygon import orient
 import os
 import json
 import math
@@ -17,11 +18,17 @@ from core.point2region import (
     load_features,
     sort_by_admin_level,
     find_nearest_region_info,
-    get_direction,
+    query_names_at_lonlat,
     _unpack_feature,
     NAME_KEYS,
     ADMIN_LEVEL_ORDER
 )
+
+def sort_counterclockwise(points):
+    points = points[:4]
+    cx = sum(p[0] for p in points) / len(points)
+    cy = sum(p[1] for p in points) / len(points)
+    return sorted(points, key=lambda p: math.atan2(p[1] - cy, p[0] - cx))
 
 # 답변에 포함할 행정구역 레벨
 ANSWER_LEVELS = ["국", "도", "특별시", "광역시", "직할시", "특별자치시", "시", "군", "구", "구역"]
@@ -130,10 +137,6 @@ def query_regions_in_rect(features, rect_coords, only_representive_text=False) -
     - {"representative": [...], "fully_contained": [...], "all_regions": [...],
        "provincial_regions": [...], "center": [lon, lat], "distance_info": None}
     """
-    if len(rect_coords) < 4:
-        raise ValueError("rect_coords는 4개 이상의 좌표를 가져야 합니다.")
-    elif len(rect_coords) > 4:
-        rect_coords = rect_coords[:4]
 
     rect_polygon = Polygon(rect_coords)
     if not rect_polygon.is_valid:
@@ -141,6 +144,8 @@ def query_regions_in_rect(features, rect_coords, only_representive_text=False) -
 
     centroid = rect_polygon.centroid
     center_lon, center_lat = centroid.x, centroid.y
+
+    query_names_at_lonlat(features, center_lon, center_lat)
 
     fully_contained = []
     partially_contained = []
@@ -185,6 +190,9 @@ def query_regions_in_rect(features, rect_coords, only_representive_text=False) -
     if not all_regions:
         distance_info = find_nearest_region_info(features, center_lon, center_lat)
         representative = distance_info if distance_info else []
+    else:
+        center_info = " ".join(query_names_at_lonlat(features, center_lon, center_lat)) + " 중심"
+        representative.insert(0, center_info)
 
     if only_representive_text:
         return {"representative": ", ".join(representative)}
@@ -217,6 +225,7 @@ class Rect2Region():
         self.test_idx = 0
     
     def convert(self,rect_coords, only_representive_text = False):
+        rect_coords = sort_counterclockwise(rect_coords)
         result = query_regions_in_rect(self.features, rect_coords, only_representive_text = only_representive_text)
         return result
 
@@ -263,7 +272,7 @@ class Rect2Region():
                 else:
                     region_coords = region_text
 
-                rect_coords = region_coords[:4]
+                rect_coords = sort_counterclockwise(region_coords)
                 result = self.convert(rect_coords)
                 converted_text = ", ".join(result['representative'])
                 hit['_source']['region_text'] = converted_text
@@ -348,33 +357,75 @@ class Rect2Region():
         """GeoJSON 파일을 GitHub에 푸시."""
         from config import BASE_PATH
         file_path = Path(file_path)
-        repo_dir = Path(BASE_PATH).parent.parent
-        github_url = r"https://github.com/Auspiland/myToy.git"
+        repo_dir = Path(BASE_PATH).parent  # myToy 디렉토리
         rel_file_path = file_path.relative_to(repo_dir)
 
-        commit_msg = f"{rel_file_path.name} 파일 자동 추가"
+        def _run(command: list):
+            return subprocess.run(
+                command,
+                cwd=str(repo_dir),
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                errors='replace'
+            )
 
-        subprocess.run(["git", "add", rel_file_path], cwd=repo_dir)
-        subprocess.run(["git", "commit", "-m", commit_msg], cwd=repo_dir)
-        subprocess.run(["git", "push", github_url, "main"], cwd=repo_dir)
+        # origin remote 확인
+        result = _run(["git", "remote", "get-url", "origin"])
+
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"Git remote 'origin'이 설정되어 있지 않습니다.\n"
+                f"Repository: {repo_dir}\n"
+                f"다음 명령어로 origin을 추가하세요:\n"
+                f"git remote add origin <repository-url>"
+            )
+
+        commit_msg = f"{file_path.name} 파일 자동 추가"
+
+        # git add
+        add_result = _run(["git", "add", str(rel_file_path)])
+
+        if add_result.returncode != 0:
+            raise RuntimeError(f"git add 실패:\n{add_result.stderr}")
+
+        # git commit
+        commit_result = _run(["git", "commit", "-m", commit_msg])
+        # commit이 실패해도 괜찮음 (변경사항이 없을 수 있음)
+
+        # git push
+        push_result = _run(["git", "push", "origin", "main"])
+        if push_result.returncode != 0:
+            raise RuntimeError(
+                f"git push 실패:\n{push_result.stderr}\n\n"
+                f"가능한 원인:\n"
+                f"1. 인증 문제 - GitHub 토큰/SSH 키 확인\n"
+                f"2. 권한 문제 - repository 쓰기 권한 확인\n"
+                f"3. 브랜치 문제 - main 브랜치 존재 확인"
+            )
+
         print("파일 업로드 완료!!")
-
-        return f"https://github.com/Auspiland/myToy/tree/main/geo_map/static/{rel_file_path.name}"
+        return f"https://github.com/Auspiland/myToy/tree/main/{str(rel_file_path).replace(os.sep, '/')}"
 
     def create_geojson(self, rect_coords, output_path, result=None, openbrowser=False):
         """
         사각형 좌표로 GeoJSON 파일 생성 및 GitHub에 푸시.
         포함된 시/도 폴리곤과 중심점도 추가.
         """
+        rect_coords = sort_counterclockwise(rect_coords)
         if result is None:
             result = self.convert(rect_coords)
+
+        # Polygon 생성 후 orient로 반시계 방향 보장
+        rect_polygon = Polygon(rect_coords)
+        rect_polygon = orient(rect_polygon, sign=1.0)  # sign=1.0: counter-clockwise
 
         geojson = {
             "type": "FeatureCollection",
             "features": [{
                 "type": "Feature",
                 "properties": {"type": "input_rectangle", "center": result['center']},
-                "geometry": {"type": "Polygon", "coordinates": [rect_coords + [rect_coords[0]]]}
+                "geometry": mapping(rect_polygon)
             }]
         }
 
@@ -387,10 +438,14 @@ class Rect2Region():
             if boundary_info.get('found'):
                 bounds_list.append(boundary_info['bounds'])
 
+                # Polygon 생성 후 orient로 반시계 방향 보장
+                boundary_polygon = Polygon(boundary_info['boundary_coords'])
+                boundary_polygon = orient(boundary_polygon, sign=1.0)
+
                 geojson["features"].append({
                     "type": "Feature",
                     "properties": {"name": region_name, "type": "provincial_region"},
-                    "geometry": {"type": "Polygon", "coordinates": [boundary_info['boundary_coords']]}
+                    "geometry": mapping(boundary_polygon)
                 })
 
                 geojson["features"].append({
@@ -438,6 +493,7 @@ if __name__ == "__main__":
         [126.93507098285538, 36.64210788827871],
         [127.50553754496315, 36.643447265652945]
     ]
+    rect_coords = sort_counterclockwise(rect_coords)
 
     result1 = converter.convert(rect_coords)
     converter.show(result1)

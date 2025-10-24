@@ -8,6 +8,8 @@ import time
 import webbrowser
 import subprocess
 from pathlib import Path
+from shapely.geometry import Polygon, mapping
+from shapely.geometry.polygon import orient
 from core.rect2region import Rect2Region
 
 def calculate_map_center_and_zoom(rect_coords, bounds_list=None):
@@ -55,12 +57,16 @@ def create_geojson_from_rect(rect_coords, output_path, openbrowser=False):
     converter = Rect2Region()
     result = converter.convert(rect_coords)
 
+    # Polygon 생성 후 orient로 반시계 방향 보장
+    rect_polygon = Polygon(rect_coords)
+    rect_polygon = orient(rect_polygon, sign=1.0)
+
     geojson = {
         "type": "FeatureCollection",
         "features": [{
             "type": "Feature",
             "properties": {"type": "input_rectangle", "center": result['center']},
-            "geometry": {"type": "Polygon", "coordinates": [rect_coords + [rect_coords[0]]]}
+            "geometry": mapping(rect_polygon)
         }]
     }
 
@@ -73,10 +79,14 @@ def create_geojson_from_rect(rect_coords, output_path, openbrowser=False):
         if boundary_info.get('found'):
             bounds_list.append(boundary_info['bounds'])
 
+            # Polygon 생성 후 orient로 반시계 방향 보장
+            boundary_polygon = Polygon(boundary_info['boundary_coords'])
+            boundary_polygon = orient(boundary_polygon, sign=1.0)
+
             geojson["features"].append({
                 "type": "Feature",
                 "properties": {"name": region_name, "type": "provincial_region"},
-                "geometry": {"type": "Polygon", "coordinates": [boundary_info['boundary_coords']]}
+                "geometry": mapping(boundary_polygon)
             })
 
             geojson["features"].append({
@@ -114,19 +124,74 @@ def create_geojson_from_rect(rect_coords, output_path, openbrowser=False):
 
 def push_github(file_path):
     from config import BASE_PATH
+    import os
     file_path = Path(file_path)
-    repo_dir = Path(BASE_PATH).parent.parent
-    github_url = r"https://github.com/Auspiland/myToy.git"
+    repo_dir = Path(BASE_PATH).parent  # myToy 디렉토리
     rel_file_path = file_path.relative_to(repo_dir)
 
-    commit_msg = f"{rel_file_path.name} 파일 자동 추가"
+    # origin remote 확인
+    result = subprocess.run(
+        ["git", "remote", "get-url", "origin"],
+        cwd=str(repo_dir),
+        capture_output=True,
+        text=True,
+        encoding='utf-8',
+        errors='replace'
+    )
 
-    subprocess.run(["git", "add", rel_file_path], cwd=repo_dir)
-    subprocess.run(["git", "commit", "-m", commit_msg], cwd=repo_dir)
-    subprocess.run(["git", "push", github_url, "main"], cwd=repo_dir)
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Git remote 'origin'이 설정되어 있지 않습니다.\n"
+            f"Repository: {repo_dir}\n"
+            f"다음 명령어로 origin을 추가하세요:\n"
+            f"git remote add origin <repository-url>"
+        )
+
+    commit_msg = f"{file_path.name} 파일 자동 추가"
+
+    # git add
+    add_result = subprocess.run(
+        ["git", "add", str(rel_file_path)],
+        cwd=str(repo_dir),
+        capture_output=True,
+        text=True,
+        encoding='utf-8',
+        errors='replace'
+    )
+    if add_result.returncode != 0:
+        raise RuntimeError(f"git add 실패:\n{add_result.stderr}")
+
+    # git commit
+    commit_result = subprocess.run(
+        ["git", "commit", "-m", commit_msg],
+        cwd=str(repo_dir),
+        capture_output=True,
+        text=True,
+        encoding='utf-8',
+        errors='replace'
+    )
+    # commit이 실패해도 괜찮음 (변경사항이 없을 수 있음)
+
+    # git push
+    push_result = subprocess.run(
+        ["git", "push", "origin", "main"],
+        cwd=str(repo_dir),
+        capture_output=True,
+        text=True,
+        encoding='utf-8',
+        errors='replace'
+    )
+    if push_result.returncode != 0:
+        raise RuntimeError(
+            f"git push 실패:\n{push_result.stderr}\n\n"
+            f"가능한 원인:\n"
+            f"1. 인증 문제 - GitHub 토큰/SSH 키 확인\n"
+            f"2. 권한 문제 - repository 쓰기 권한 확인\n"
+            f"3. 브랜치 문제 - main 브랜치 존재 확인"
+        )
+
     print("파일 업로드 완료!!")
-
-    return f"https://github.com/Auspiland/myToy/tree/main/geo_map/static/{rel_file_path.name}"
+    return f"https://github.com/Auspiland/myToy/tree/main/{str(rel_file_path).replace(os.sep, '/')}"
 
 def run_main(rect_coords, data_name, print_info=False, openbrowser = False):
     from config import BASE_PATH
