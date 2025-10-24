@@ -32,7 +32,7 @@ def is_district_level(name):
     district_suffixes = ('구', '군', '구역')
     return any(name.endswith(suffix) for suffix in district_suffixes)
 
-BASE_PATH = r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map"
+BASE_PATH = r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map"
 
 # 파일 로드
 files = [

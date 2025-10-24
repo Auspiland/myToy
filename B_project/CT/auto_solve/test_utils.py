@@ -98,8 +98,10 @@ def evaluate_jsonl(jsonl_path: str, solution, score_fn=None, log_correct=False):
                     if log_correct:
                         print(f"✅ {total+1:03d} | {dt*1000:.2f}ms | 입력={raw_in} → 출력={pred}")
                 else:
-                    fails.append((raw_in, truth, pred, note, tags, dt))
+                    raw_in_rec = json.dumps(raw_in)[:300]
+                    fails.append((raw_in_rec, truth, pred, note, tags, dt))
             except Exception as e:
+                raw_in_rec = json.dumps(raw_in)[:300]
                 fails.append((raw_in, truth, f"Exception: {e}\n{traceback.format_exc()}", note, ["err"], 0.0))
             total += 1
 
@@ -107,7 +109,8 @@ def evaluate_jsonl(jsonl_path: str, solution, score_fn=None, log_correct=False):
     print("\n--- 요약 ---")
     rate = (correct/total*100) if total else 0.0
     print(f"총 {total}건 중 {correct}건 정답 ({rate:.1f}%)")
-    print(f"평균 실행시간: {avg:.2f}ms")
+    print(f"평균 실행시간: {avg:.6f}ms")
+    print(times[-1])
 
     if fails:
         print(f"\n❌ 틀린 {len(fails)}건 목록:")

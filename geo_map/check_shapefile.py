@@ -3,7 +3,7 @@ import json
 import geopandas as gpd
 from shapely.geometry import Polygon, MultiPolygon, mapping
 
-BASE_PATH = r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map"
+BASE_PATH = r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map"
 NSKOREA = os.path.join(BASE_PATH, "ns_korea_shp")
 N_KOREA = os.path.join(BASE_PATH, "prk_adm_wfp_20190624_shp")
 
