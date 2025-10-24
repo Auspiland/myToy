@@ -3,6 +3,11 @@ from common_utils import response_GPT
 from gen_data import main as generate_data
 from test_utils import evaluate_jsonl
 from debug import analysing_error
+from dotenv import load_dotenv
+
+load_dotenv()
+BASE_PATH = os.getenv("BASE_PATH")
+file_dir = os.path.join(BASE_PATH, "B_project","CT","auto_solve","generated_data")
 
 log = logging.getLogger(__name__)
 
@@ -46,6 +51,39 @@ def solution(N, K, jewerly, bag):
     jewerly.sort(key=lambda x: x[1], reverse=True)
 
     bag.sort()
+    bag_mask = [0]*K
+
+    total = 0
+
+    for weight, price in jewerly:
+        
+        idx = bisect.bisect_left(bag, weight)
+        while idx < len(bag):
+            if bag_mask[idx] == 1:
+                idx += 1
+            else:
+                total += price
+                bag_mask[idx] = 1
+                break
+        
+    return total
+
+
+
+
+
+def debugging():
+    code = """
+import bisect
+
+def solution(N, K, jewerly, bag):
+
+    N = int(N)
+    K = int(K)
+
+    jewerly.sort(key=lambda x: x[1], reverse=True)
+
+    bag.sort()
 
     sum = 0
 
@@ -57,21 +95,49 @@ def solution(N, K, jewerly, bag):
             sum += price
         
     return sum
+"""
+    err_msg = r"""
+[1] 입력: {"N":3,"K":2,"jewerly":[[1,2,3],[10,20,30]],"bag":[2,3]}
+예상: 50
+출력: Exception: too many values to unpack (expected 2)
+Traceback (most recent call last):
+  File "C:\Users\T3Q\jeonghan\my_github\myToy\B_project\CT\auto_solve\test_utils.py", line 91, in evaluate_jsonl
+    pred = solution(*args, **kwargs)
+  File "C:\Users\T3Q\jeonghan\my_github\myToy\B_project\CT\auto_solve\test.py", line 57, in solution
+    for weight, price in jewerly:
+        ^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 2)
 
-
-
-
-def debugging():
-    code = """
-
+시간: 0.00ms
+tags: ['err']
+note: 대체 스키마: jewerly를 2xN 행렬로 표현
+---
+[2] 입력: {"N":5,"K":3,"jewerly":[[0,100],[1,100],[1,99],[0,98],[2,1000]],"bag":[1,1,1]}
+예상: 297
+출력: 299
+시간: 0.00ms
+tags: ['corner']
+note: 무게 0과 1 혼합, 무거운 보석은 끝까지 미적합
+---
+[3] 입력: {"N":4,"K":3,"jewerly":[[0,2,1,1],[5,0,10,10]],"bag":[1,2,2]}
+예상: 25
+출력: Exception: too many values to unpack (expected 2)
+Traceback (most recent call last):
+  File "C:\Users\T3Q\jeonghan\my_github\myToy\B_project\CT\auto_solve\test_utils.py", line 91, in evaluate_jsonl
+    pred = solution(*args, **kwargs)
+  File "C:\Users\T3Q\jeonghan\my_github\myToy\B_project\CT\auto_solve\test.py", line 57, in solution
+    for weight, price in jewerly:
+        ^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 2)
 """
     print(analysing_error(problem=problem, code=code, error_msg=err_msg, special_prompt=special_prompt))
+
 
 
 if __name__ == "__main__":
     # data_path = generate_data(problem_text=problem, special_prompt=special_prompt)
 
-    data_path = r"C:\_mangojelly\Git-mytoy\myToy\B_project\CT\auto_solve\generated_data\세계적인 도둑 상.jsonl"
+    data_path = os.path.join(file_dir, "세계적인 도둑 상.jsonl")
     
     evaluate_jsonl(data_path, solution=solution)
 

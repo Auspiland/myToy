@@ -278,7 +278,7 @@ def find_nearest_region_info(features, lon, lat):
 
 # ---------------- 사용 예 ----------------
 if __name__ == "__main__":
-    BASE_PATH = r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map\using_data"
+    BASE_PATH = r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map\using_data"
 
     files = (os.path.join(BASE_PATH,"boundaries_KR_20220407.geojson"),
              os.path.join(BASE_PATH,"new_prk_admbnda_adm2_wfp_20190624.geojson"))

@@ -234,11 +234,15 @@ def query_regions_in_rect(features, rect_coords, only_representive_text = False)
     if only_representive_text:
         return {"representative": ", ".join(representative)}
 
+    # 시/도 단위 지역 이름 리스트 추출
+    provincial_names = list(provincial_regions.keys())
+
     return {
         "representative": representative,
         "fully_contained": fully_contained,
         # "partially_contained": partially_contained,
         "all_regions": all_regions,
+        "provincial_regions": provincial_names,  # 시/도 단위 지역 이름 리스트
         "center": [center_lon, center_lat],
         "distance_info": None  # 이제 representative에 포함됨
     }
@@ -247,7 +251,7 @@ def query_regions_in_rect(features, rect_coords, only_representive_text = False)
 class Rect2Region():
     def __init__(self, files=None):
         if files == None:
-            BASE_PATH = r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map\using_data"
+            BASE_PATH = r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map\using_data"
             files = (
                 os.path.join(BASE_PATH, "boundaries_KR_20220407.geojson"),
                 os.path.join(BASE_PATH, "new_prk_admbnda_adm2_wfp_20190624.geojson")
@@ -443,6 +447,6 @@ if __name__ == "__main__":
     print("=" * 80)
 
     # JSON 파일 변환 실행
-    input_file = r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map\using_data\data.json"
-    output_file = r"C:\Users\T3Q\jeonghan\Eunhyea_Assist\geo_map\using_data\converted_data.json"
+    input_file = r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map\using_data\data.json"
+    output_file = r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map\using_data\converted_data.json"
     converter.convert_json_file(input_file, output_file)
