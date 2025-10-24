@@ -5,8 +5,9 @@ sys.stdout.reconfigure(encoding='utf-8')
 import json
 import os
 from shapely.geometry import shape
+from config import BASE_PATH
 
-BASE_PATH = r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map\using_data"
+USING_DATA_PATH = os.path.join(BASE_PATH, "using_data")
 
 # 처리할 파일들
 TARGET_FILES = [
@@ -27,7 +28,7 @@ def load_center_coordinates():
     center_dict = {}
 
     for filename in CENTER_FILES:
-        filepath = os.path.join(BASE_PATH, filename)
+        filepath = os.path.join(USING_DATA_PATH, filename)
         print(f"중심 좌표 로딩 중: {filename}")
 
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -143,7 +144,7 @@ def main():
 
     # 2. 각 파일 처리
     for filename in TARGET_FILES:
-        filepath = os.path.join(BASE_PATH, filename)
+        filepath = os.path.join(USING_DATA_PATH, filename)
         if os.path.exists(filepath):
             add_center_to_geojson(filepath, center_dict)
         else:

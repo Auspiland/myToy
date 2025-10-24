@@ -8,7 +8,8 @@ from shapely.validation import make_valid
 # -------------------------------
 # 설정 (기존과 동일)
 # -------------------------------
-BASE_PATH = r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map"
+from config import BASE_PATH
+
 SOUTH_KOREA = os.path.join(BASE_PATH, "south-korea-251021-free.shp")
 NORTH_KOREA = os.path.join(BASE_PATH, "north-korea-251021-free.shp")
 

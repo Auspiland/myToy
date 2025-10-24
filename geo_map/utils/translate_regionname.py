@@ -133,24 +133,30 @@ def apply_fix_table(in_path, out_path, fix_table):
 
 
 # -------------------- 사용 예 --------------------
-seed_map = {"Democratic People's Republic of Korea (the)": "조선민주주의인민공화국"}
-process_geojson(
-    in_path=r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map\prk_adm_wfp_20190624_shp\prk_admbnda_adm2_wfp_20190624.geojson",
-    out_path=r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map\prk_adm_wfp_20190624_shp\new_prk_admbnda_adm2_wfp_20190624.geojson",
-    seed_map=seed_map
-)
+if __name__ == "__main__":
+    import os
+    from config import BASE_PATH
 
-fix_table = {
-    "장도군": "창도군",          # Changdo
-    "청남군": "청남구역",        # Chongnam
-    "수동구역": "수동군",        # Sudong
-    "영변군": "녕변군",          # Nyongbyon
-    "영원군": "녕원군",          # Nyongwon
-    "삼지연군": "삼지연시",      # Samjiyon
-    "Jaerong": "Jaeryong",       # 영문 표기 수정 권장
-    "Kophung": "Kopung",         # 영문 표기 수정 권장
-    "Taegwan": "Daegwan",        # 영문 표기 통일
-}
-file = r"C:\Users\T3Q\jeonghan\my_github\myToy\geo_map\prk_adm_wfp_20190624_shp\new_prk_admbnda_adm2_wfp_20190624.geojson"
+    prk_shp_path = os.path.join(BASE_PATH, "prk_adm_wfp_20190624_shp")
 
-apply_fix_table(file,file,fix_table)
+    seed_map = {"Democratic People's Republic of Korea (the)": "조선민주주의인민공화국"}
+    process_geojson(
+        in_path=os.path.join(prk_shp_path, "prk_admbnda_adm2_wfp_20190624.geojson"),
+        out_path=os.path.join(prk_shp_path, "new_prk_admbnda_adm2_wfp_20190624.geojson"),
+        seed_map=seed_map
+    )
+
+    fix_table = {
+        "장도군": "창도군",          # Changdo
+        "청남군": "청남구역",        # Chongnam
+        "수동구역": "수동군",        # Sudong
+        "영변군": "녕변군",          # Nyongbyon
+        "영원군": "녕원군",          # Nyongwon
+        "삼지연군": "삼지연시",      # Samjiyon
+        "Jaerong": "Jaeryong",       # 영문 표기 수정 권장
+        "Kophung": "Kopung",         # 영문 표기 수정 권장
+        "Taegwan": "Daegwan",        # 영문 표기 통일
+    }
+    file = os.path.join(prk_shp_path, "new_prk_admbnda_adm2_wfp_20190624.geojson")
+
+    apply_fix_table(file, file, fix_table)
