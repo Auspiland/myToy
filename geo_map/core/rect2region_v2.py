@@ -25,6 +25,7 @@ from core.point2region import (
     NAME_KEYS,
     ADMIN_LEVEL_ORDER
 )
+from src.common_utils import push_to_github
 
 def sort_counterclockwise(points):
     if len(points) < 4:
@@ -50,6 +51,70 @@ def is_provincial_level(name: str):
     provincial_suffixes = ["도", "특별시", "광역시", "직할시", "특별자치시"]
     return any(name.endswith(suffix) for suffix in provincial_suffixes)
 
+def analyze_multipolygon_islands(geometry, rect_polygon, total_intersection):
+    """
+    멀티폴리곤에서 내륙과 섬을 구분하고, rect와의 겹침 비율을 계산.
+
+    Args:
+        geometry: 분석할 지역의 geometry (Polygon 또는 MultiPolygon)
+        rect_polygon: 사각형 폴리곤
+        total_intersection: 이미 계산된 rect_polygon.intersection(geometry)
+
+    Returns:
+        {
+            "is_multipolygon": bool,
+            "island_ratio_in_intersection": float,  # 드러난 부분(교차 영역) 중 섬이 차지하는 비율
+            "is_island_dominant": bool,  # 섬이 주요 겹침 영역인지 여부 (40% 이상)
+            "dominant_island_center": [lon, lat] or None  # 섬들의 중심 좌표 (근사값)
+        }
+    """
+    if geometry.geom_type != 'MultiPolygon':
+        return {
+            "is_multipolygon": False,
+            "island_ratio_in_intersection": 0,
+            "is_island_dominant": False,
+            "dominant_island_center": None
+        }
+
+    # 가장 큰 폴리곤을 내륙으로 간주
+    mainland_polygon = max(geometry.geoms, key=lambda p: p.area)
+
+    # 1. 내륙과 rect의 교차 면적 (A)
+    mainland_intersection = rect_polygon.intersection(mainland_polygon)
+    mainland_intersection_area = mainland_intersection.area if mainland_intersection else 0
+
+    # 2. 전체 geometry와 rect의 교차 면적 (B) - 이미 계산된 값 사용
+    total_intersection_area = total_intersection.area if total_intersection else 0
+
+    # 3. 섬 교차 면적 = B - A
+    islands_intersection_area = total_intersection_area - mainland_intersection_area
+
+    # 4. 드러난 부분 중 섬이 차지하는 비율
+    island_ratio_in_intersection = (
+        islands_intersection_area / total_intersection_area
+        if total_intersection_area > 0 else 0
+    )
+
+    # 5. 섬이 주요 겹침 영역인지 판단: 드러난 부분 중 40% 이상이 섬
+    is_island_dominant = island_ratio_in_intersection >= 0.40
+
+    # 6. 섬의 중심 좌표 (섬 영역들의 centroid로 근사)
+    dominant_island_center = None
+    if is_island_dominant and islands_intersection_area > 0:
+        # 전체 교차 영역에서 내륙 교차 영역을 뺀 부분의 중심
+        islands_intersection = total_intersection.difference(mainland_intersection) if mainland_intersection else total_intersection
+        if islands_intersection and not islands_intersection.is_empty:
+            centroid = islands_intersection.centroid
+            dominant_island_center = [centroid.x, centroid.y]
+
+    return {
+        "is_multipolygon": True,
+        "island_ratio_in_intersection": island_ratio_in_intersection,
+        "is_island_dominant": is_island_dominant,
+        "dominant_island_center": dominant_island_center
+    }
+
+
 def get_relative_direction(rect_center_lon, rect_center_lat, region_center_lon, region_center_lat):
     """
     사각형 중심에서 본 행정구역 중심의 방향을 9방향으로 반환.
@@ -68,7 +133,7 @@ def get_relative_direction(rect_center_lon, rect_center_lat, region_center_lon, 
     if distance < 0.1:  # 약 11km 이내
         return "중심"
 
-    # 8방향 판정
+    # 8방향 판정 (균등 분할 45도)
     angle = math.degrees(math.atan2(dy, dx))
     angle = (90 - angle) % 360
 
@@ -89,13 +154,17 @@ def get_relative_direction(rect_center_lon, rect_center_lat, region_center_lon, 
     else:
         return "북서부"
 
-def get_region_representative_name(features, region_name, coverage_ratio, rect_center_lon, rect_center_lat, region_centers_cache):
+def get_region_representative_name(features, region_name, coverage_ratio, rect_center_lon, rect_center_lat, region_centers_cache, island_info=None, intersection=None):
     """
     광역 단위 지역의 포괄적 표현 생성.
     - 면적 95% 이상 포함: "서울특별시 전체"
     - 면적 70% 이상 포함: "서울특별시 대부분"
+    - 섬이 주요 영역인 경우: "전라남도 북부 섬" 또는 "경상남도 남동부 섬"
     - 그 외: "서울특별시 [방향] 포함" (예: "강원도 북부 포함")
     """
+    # 섬이 주요 영역인지 확인
+    is_island_dominant = island_info and island_info.get("is_island_dominant", False)
+
     # 면적 기준 판정
     if coverage_ratio >= 0.95:
         return f"{region_name} 전체"
@@ -117,20 +186,46 @@ def get_region_representative_name(features, region_name, coverage_ratio, rect_c
                     region_centers_cache[region_name] = (centroid.x, centroid.y)
                 break
 
-    # 캐시에서 중심 좌표 가져오기
+    # 방향 계산: 행정구역 중심 -> 겹친 영역의 중심
+    direction = None
     if region_name in region_centers_cache:
         region_center = region_centers_cache[region_name]
-        # 방향 수정: 행정구역 중심 -> 사각형 중심 방향
-        direction = get_relative_direction(
-            region_center[0], region_center[1],
-            rect_center_lon, rect_center_lat
-        )
-        if direction == "중심":
-            return f"{region_name} 중심부 포함"
+
+        # 겹친 영역의 중심 좌표 계산
+        if is_island_dominant and island_info.get("dominant_island_center"):
+            # 섬의 경우: 섬 교차 영역의 중심
+            intersection_center_lon, intersection_center_lat = island_info["dominant_island_center"]
+        elif intersection and not intersection.is_empty:
+            # 일반적인 경우: 교차 영역의 중심
+            intersection_centroid = intersection.centroid
+            intersection_center_lon, intersection_center_lat = intersection_centroid.x, intersection_centroid.y
         else:
-            return f"{region_name} {direction} 포함"
+            # intersection이 없으면 rect 중심 사용 (폴백)
+            intersection_center_lon, intersection_center_lat = rect_center_lon, rect_center_lat
+
+        direction = get_relative_direction(
+            region_center[0], region_center[1],           # 시작점: 행정구역 중심
+            intersection_center_lon, intersection_center_lat  # 끝점: 겹친 영역의 중심
+        )
+
+    # 최종 표현 생성
+    if direction:
+        if is_island_dominant:
+            # 섬이 주요 영역인 경우
+            if direction == "중심":
+                return f"{region_name} 섬"
+            else:
+                return f"{region_name} {direction} 섬"
+        else:
+            # 일반적인 경우
+            if direction == "중심":
+                return f"{region_name} 중심부 포함"
+            else:
+                return f"{region_name} {direction} 포함"
 
     # 중심을 찾지 못한 경우
+    if is_island_dominant:
+        return f"{region_name} 섬"
     return f"{region_name} 일부 포함"
 
 def query_regions_in_rect(features, rect_coords, only_representive_text=False) -> dict:
@@ -153,8 +248,9 @@ def query_regions_in_rect(features, rect_coords, only_representive_text=False) -
 
     fully_contained = []
     partially_contained = []
-    provincial_regions = {}
+    provincial_regions = {}  # {region_name: {"coverage": ratio, "intersection": geometry}}
     region_centers_cache = {}
+    island_info_cache = {}  # 섬 정보 캐시
 
     for feature_data in features:
         g, pg, nm, all_names, center_coords = _unpack_feature(feature_data)
@@ -172,7 +268,18 @@ def query_regions_in_rect(features, rect_coords, only_representive_text=False) -
 
         for name in valid_names:
             if is_provincial_level(name):
-                provincial_regions[name] = max(provincial_regions.get(name, 0), coverage_ratio)
+                # 기존 coverage_ratio와 비교하여 더 큰 값으로 업데이트
+                if name not in provincial_regions or coverage_ratio > provincial_regions[name]["coverage"]:
+                    provincial_regions[name] = {
+                        "coverage": coverage_ratio,
+                        "intersection": intersection
+                    }
+
+                # 멀티폴리곤인 경우 섬 정보 분석 (광역 단위만)
+                if name not in island_info_cache:
+                    # 이미 계산된 intersection을 전달하여 중복 계산 방지
+                    island_info = analyze_multipolygon_islands(g, rect_polygon, intersection)
+                    island_info_cache[name] = island_info
 
             if is_full:
                 if name not in fully_contained:
@@ -182,9 +289,13 @@ def query_regions_in_rect(features, rect_coords, only_representive_text=False) -
                     partially_contained.append(name)
 
     representative = [
-        get_region_representative_name(features, region_name, coverage_ratio,
-                                      center_lon, center_lat, region_centers_cache)
-        for region_name, coverage_ratio in provincial_regions.items()
+        get_region_representative_name(
+            features, region_name, region_data["coverage"],
+            center_lon, center_lat, region_centers_cache,
+            island_info=island_info_cache.get(region_name),
+            intersection=region_data["intersection"]
+        )
+        for region_name, region_data in provincial_regions.items()
     ]
 
     fully_contained = sort_by_admin_level(fully_contained)
@@ -244,11 +355,18 @@ class Rect2Region():
             print("=" * 80)
             print(f"테스트 {self.test_idx}")
             print("=" * 80)
-            print(f"중심 좌표: {result['center']}")
-            print()
-            print(f"광역 단위 대표 표현: {result['representative']}")
-            print(f"완전히 포함된 지역: {result['fully_contained']}")
-            print(f"전체 지역 (완전+일부): {result['all_regions']}")
+
+            # only_representive_text=True로 호출된 경우
+            if 'representative' in result and len(result) == 1:
+                print(f"대표 표현: {result['representative']}")
+            else:
+                # 전체 스키마가 반환된 경우
+                print(f"중심 좌표: {result['center']}")
+                print()
+                print(f"광역 단위 대표 표현: {result['representative']}")
+                print(f"완전히 포함된 지역: {result['fully_contained']}")
+                print(f"전체 지역 (완전+일부): {result['all_regions']}")
+
             print()
             self.test_idx += 1
 
@@ -371,151 +489,6 @@ class Rect2Region():
             'zoom': round(min(zoom_lon, zoom_lat), 1)
         }
 
-
-    def push_to_github(self, file_path: str) -> str:
-        """
-        주어진 파일을 현재 Git 리포지토리의 기본 브랜치로 푸시하고,
-        GitHub 웹에서 열 수 있는 HTTPS URL을 반환합니다.
-        - 리포 루트/브랜치/remote URL을 Git에서 동적으로 조회
-        - 변경 사항 없으면 commit 생략
-        - origin 미설정/인증 오류/브랜치 오류 등을 명확히 안내
-        """
-        file_path = Path(file_path).resolve()
-
-        def _run(cmd, cwd=None):
-            return subprocess.run(
-                cmd,
-                cwd=str(cwd) if cwd else None,
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                check=False,
-            )
-
-        # 1) 리포 루트 자동 탐지 (파일이 속한 디렉터리 기준)
-        repo_root_res = _run(["git", "-C", str(file_path.parent), "rev-parse", "--show-toplevel"])
-        if repo_root_res.returncode != 0:
-            raise RuntimeError(
-                "이 파일 경로에서 Git 리포지토리를 찾지 못했습니다.\n"
-                f"파일: {file_path}\n"
-                f"에러: {repo_root_res.stderr.strip()}"
-            )
-        repo_root = Path(repo_root_res.stdout.strip())
-
-        # 파일이 리포 내부인지 확인
-        try:
-            rel_file_path = file_path.relative_to(repo_root)
-        except ValueError:
-            raise RuntimeError(
-                f"파일이 리포지토리 외부에 있습니다.\n"
-                f"리포 루트: {repo_root}\n파일: {file_path}"
-            )
-
-        # 2) origin remote 확인
-        origin_res = _run(["git", "remote", "get-url", "origin"], cwd=repo_root)
-        if origin_res.returncode != 0:
-            raise RuntimeError(
-                "Git remote 'origin'이 설정되어 있지 않습니다.\n"
-                f"Repository: {repo_root}\n"
-                "다음 명령으로 origin을 추가하세요:\n"
-                "  git remote add origin <repository-url>"
-            )
-        origin_url = origin_res.stdout.strip()
-
-        # 3) 기본 브랜치 탐지 (origin/HEAD → origin/<default>)
-        def _detect_default_branch() -> Optional[str]:
-            # 방법 A: symbolic-ref
-            a = _run(["git", "symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD"], cwd=repo_root)
-            if a.returncode == 0:
-                val = a.stdout.strip()      # e.g., "origin/main"
-                if "/" in val:
-                    return val.split("/", 1)[1]
-
-            # 방법 B: remote show origin
-            b = _run(["git", "remote", "show", "origin"], cwd=repo_root)
-            if b.returncode == 0:
-                m = re.search(r"HEAD branch:\s+([^\s]+)", b.stdout)
-                if m:
-                    return m.group(1)
-
-            return None
-
-        default_branch = _detect_default_branch()
-        # 최후수단: main → master 순으로 시도
-        candidate_branches = [b for b in [default_branch, "main", "master"] if b]
-
-        # 4) git add
-        add_res = _run(["git", "add", str(rel_file_path)], cwd=repo_root)
-        if add_res.returncode != 0:
-            raise RuntimeError(f"git add 실패:\n{add_res.stderr}")
-
-        # 5) 변경 사항이 있는지 확인 (staged 기준)
-        # 특정 파일만 대상으로 조용히(quiet) 체크
-        diff_cached = _run(["git", "diff", "--cached", "--quiet", "--", str(rel_file_path)], cwd=repo_root)
-        has_staged_change = diff_cached.returncode == 1  # 0: 변경 없음, 1: 변경 있음, 2: 에러
-
-        # 6) commit (필요할 때만)
-        if has_staged_change:
-            commit_msg = f"{rel_file_path.name} 파일 자동 추가/업데이트"
-            commit_res = _run(["git", "commit", "-m", commit_msg], cwd=repo_root)
-            if commit_res.returncode != 0:
-                raise RuntimeError(f"git commit 실패:\n{commit_res.stderr}")
-        # 변경 없으면 커밋 생략
-
-        # 7) push (기본 브랜치 후보 순회)
-        last_err = None
-        for br in candidate_branches:
-            push_res = _run(["git", "push", "origin", br], cwd=repo_root)
-            if push_res.returncode == 0:
-                default_branch = br
-                break
-            last_err = push_res.stderr
-        else:
-            # 모든 후보 브랜치 push 실패
-            raise RuntimeError(
-                "git push 실패: 기본 브랜치를 찾거나 푸시하지 못했습니다.\n"
-                f"시도한 브랜치: {candidate_branches}\n"
-                f"마지막 오류:\n{(last_err or '').strip()}\n\n"
-                "가능한 원인:\n"
-                "1) 인증 문제: GitHub 토큰/SSH 키 자격 증명 확인\n"
-                "2) 권한 문제: repository 쓰기 권한\n"
-                "3) 브랜치 문제: 원격 브랜치 존재 여부 또는 보호 규칙"
-            )
-
-        # 8) 웹 URL 생성 (SSH/HTTPS 모두 대응해서 https://github.com/owner/repo 형태로 통일)
-        def _to_https_web_url(remote: str) -> Optional[str]:
-            remote = remote.strip()
-            if remote.endswith(".git"):
-                remote = remote[:-4]
-
-            # SSH: git@github.com:owner/repo
-            m = re.match(r"git@([^:]+):(.+)$", remote)
-            if m:
-                host = m.group(1)
-                path = m.group(2)
-                return f"https://{host}/{path}"
-
-            # HTTPS: https://github.com/owner/repo
-            if remote.startswith("http://") or remote.startswith("https://"):
-                return remote
-
-            return None
-
-        web_base = _to_https_web_url(origin_url)
-        if not web_base:
-            # 웹 URL로 바꾸지 못하면 리포 루트 경로와 origin을 알려주고 종료
-            raise RuntimeError(
-                "origin URL을 웹 URL로 변환하지 못했습니다.\n"
-                f"origin: {origin_url}\n"
-                "GitHub(또는 호환 호스트) 원격인지 확인하세요."
-            )
-
-        web_url = f"{web_base}/blob/{default_branch}/{str(rel_file_path).replace(os.sep, '/')}"
-        print("파일 업로드 완료!!")
-        return web_url
-
-
     def create_geojson(self, rect_coords, output_path, result=None, openbrowser=False):
         """
         사각형 좌표로 GeoJSON 파일 생성 및 GitHub에 푸시.
@@ -570,11 +543,11 @@ class Rect2Region():
 
         print(f"GeoJSON 파일이 저장되었습니다: {output_path}")
         print(f"포함된 시/도: {', '.join(provincial_regions)}")
-        print(f"\n지도 설정 정보:")
-        print(f"  - 중심 좌표: {map_info['center']}")
-        print(f"  - Zoom 레벨: {map_info['zoom']}")
 
-        url = self.push_to_github(output_path)
+        url = push_to_github(output_path)
+        if not url:
+            print("이 레포지토리는 비공개이거나 존재하지 않습니다. 지도 로딩을 중지합니다.")
+            return geojson
         print(url)
 
         repo = url.replace("https://github.com/", "").replace("/tree/", "/blob/")

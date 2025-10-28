@@ -198,28 +198,30 @@ geo_map/
 
 ### 1. 북한 행정구역 데이터
 - **출처**: [Humanitarian Data Exchange - North Korea Administrative Boundaries](https://data.humdata.org/dataset/cod-ab-prk)
-- **특징**: 구, 군, 구역 수준의 북한 폴리곤 데이터
+- **내용**: 구, 군, 구역 수준의 북한 폴리곤 데이터
 - **파일**: `new_prk_admbnda_adm2_wfp_20190624.geojson`
 
 ### 2. 대한민국 행정구역 데이터
 - **출처**: [Humanitarian Data Exchange - South Korea Kontur Boundaries](https://data.humdata.org/dataset/kontur-boundaries-korea-republic-of)
-- **특징**: 리 수준까지의 대한민국 폴리곤 데이터 (일부 지역)
+- **내용**: 리 수준까지의 대한민국 폴리곤 데이터 (일부 지역)
 - **파일**: `boundaries_KR_20220407.geojson`
 
 ### 3. 대한민국 상세 지역 데이터 (OSM)
 - **출처**: [Geofabrik - South Korea](https://download.geofabrik.de/asia/south-korea.html)
-- **특징**:
+- **내용**:
   - 대한민국 섬 지역 폴리곤 데이터
   - 거의 모든 "리" 수준까지의 포인트 데이터
 - **용도**: 중심 좌표 참조 및 상세 지역 매칭
 
 ### 4. 북한 상세 지역 데이터 (OSM)
 - **출처**: [Geofabrik - North Korea](https://download.geofabrik.de/asia/north-korea.html)
-- **특징**: 3번의 북한 버전 (포인트 및 폴리곤 데이터)
+- **내용**:
+  - 대한민국 섬 지역 폴리곤 데이터
+  - 거의 모든 "리" 수준까지의 포인트 데이터
 - **용도**: 북한 지역 중심 좌표 참조
 
 ### 행정구역 레벨
-국 > 도/특별시/광역시 > 시/군/구 > 읍/면/동 > 리
+국 > 도/특별시/광역시 > 시/군/구/구역 > 읍/면/동 > 리/통/지구 > 반
 
 ## 의존성
 

@@ -1,29 +1,30 @@
-import config
+import time
 from config import BASE_PATH
 from core.rect2region import Rect2Region
 import os
 
 converter = Rect2Region()
 
+t0 = time.time()
+
 # 테스트 케이스 1: 사용자 제공 좌표
 rect_coords = [
-    [126.93167575079963, 37.10178611970895],
-    [127.50557082786963, 37.10314793150034],
-    [126.93507098285538, 36.64210788827871],
-    [127.50553754496315, 36.643447265652945]
+    [126.58944268582343, 33.41526082433313],
+    [126.58944268582343, 33.41526082433313],
+    [126.58944268582343, 33.41526082433313],
+    [126.58944268582343, 33.41526082433313]
 ]
 
 result1 = converter.convert(rect_coords)
-converter.show(result1)
-output_path = os.path.join(BASE_PATH, "static", "test_1.geojson")
-converter.create_geojson(rect_coords, output_path, result=result1, openbrowser=True)
+# converter.show(result1)
+# output_path = os.path.join(BASE_PATH, "static", "test_1.geojson")
+# converter.create_geojson(rect_coords, output_path, result=result1, openbrowser=True)
 
 
 
 
 
-
-# 테스트 케이스 2: 서울 전체를 포함하는 사각형
+# # 테스트 케이스 2: 서울 전체를 포함하는 사각형
 rect_coords_seoul = [
     [126.7, 37.7],
     [127.3, 37.7],
@@ -32,9 +33,9 @@ rect_coords_seoul = [
 ]
 
 result2 = converter.convert(rect_coords_seoul)
-converter.show(result2)
-output_path2 = os.path.join(BASE_PATH, "static", "test_2.geojson")
-converter.create_geojson(rect_coords_seoul, output_path2, result=result2, openbrowser=True)
+# converter.show(result2)
+# output_path2 = os.path.join(BASE_PATH, "static", "test_2.geojson")
+# converter.create_geojson(rect_coords_seoul, output_path2, result=result2, openbrowser=True)
 
 
 
@@ -50,14 +51,13 @@ rect_coords_ocean = [
 ]
 
 result3 = converter.convert(rect_coords_ocean)
-converter.show(result3)
-output_path3 = os.path.join(BASE_PATH, "static", "test_3.geojson")
-converter.create_geojson(rect_coords_ocean, output_path3, result=result3, openbrowser=True)
+# converter.show(result3)
+# output_path3 = os.path.join(BASE_PATH, "static", "test_3.geojson")
+# converter.create_geojson(rect_coords_ocean, output_path3, result=result3, openbrowser=True)
 
-
-
-
-
+gap = time.time()-t0
+print(f"Upper tests processing time (includes initializing time) : {gap:.5f}s")
+print()
 
 
 print("=" * 80)
@@ -71,9 +71,16 @@ print("=" * 80)
 print("JSON 파일 변환 예제")
 print("=" * 80)
 
+
+
+
+
 # JSON 파일 변환 실행
+t0 = time.time()
 using_data_path = os.path.join(BASE_PATH, "using_data")
 input_file = os.path.join(using_data_path, "data.json")
 output_file = os.path.join(using_data_path, "converted_data.json")
 converter.convert_json_file(input_file, output_file)
+gap = time.time()-t0
+print(f"{gap:.5f}s")
 

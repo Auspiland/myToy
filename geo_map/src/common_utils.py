@@ -1,6 +1,9 @@
 import os, sys
-import re, json, logging
+import re, json, logging, requests
 from openai import OpenAI
+from pathlib import Path
+import subprocess
+from typing import Optional
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -163,3 +166,180 @@ def response_GPT_with_stream_fallback(
             backoff = min(backoff * 2, 8.0)
 
     raise RuntimeError("스트리밍 폴백까지 실패했습니다.")
+
+# =============================================================
+# github 자동 업로드 관련 코드
+# =============================================================
+
+
+
+
+
+def push_to_github(file_path: str) -> str:
+    """
+    주어진 파일을 현재 Git 리포지토리의 기본 브랜치로 푸시하고,
+    GitHub 웹에서 열 수 있는 HTTPS URL을 반환합니다.
+    - 리포 루트/브랜치/remote URL을 Git에서 동적으로 조회
+    - 변경 사항 없으면 commit 생략
+    - origin 미설정/인증 오류/브랜치 오류 등을 명확히 안내
+    """
+    file_path = Path(file_path).resolve()
+
+    def _run(cmd, cwd=None):
+        return subprocess.run(
+            cmd,
+            cwd=str(cwd) if cwd else None,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+
+    # 1) 리포 루트 자동 탐지 (파일이 속한 디렉터리 기준)
+    repo_root_res = _run(["git", "-C", str(file_path.parent), "rev-parse", "--show-toplevel"])
+    if repo_root_res.returncode != 0:
+        raise RuntimeError(
+            "이 파일 경로에서 Git 리포지토리를 찾지 못했습니다.\n"
+            f"파일: {file_path}\n"
+            f"에러: {repo_root_res.stderr.strip()}"
+        )
+    repo_root = Path(repo_root_res.stdout.strip())
+
+    # 파일이 리포 내부인지 확인
+    try:
+        rel_file_path = file_path.relative_to(repo_root)
+    except ValueError:
+        raise RuntimeError(
+            f"파일이 리포지토리 외부에 있습니다.\n"
+            f"리포 루트: {repo_root}\n파일: {file_path}"
+        )
+
+    # 2) origin remote 확인
+    origin_res = _run(["git", "remote", "get-url", "origin"], cwd=repo_root)
+    if origin_res.returncode != 0:
+        raise RuntimeError(
+            "Git remote 'origin'이 설정되어 있지 않습니다.\n"
+            f"Repository: {repo_root}\n"
+            "다음 명령으로 origin을 추가하세요:\n"
+            "  git remote add origin <repository-url>"
+        )
+    origin_url = origin_res.stdout.strip()
+    if not is_github_repo_public(origin_url):
+        print("이 레포지토리는 비공개이거나 존재하지 않습니다.")
+        return 
+
+    # 3) 기본 브랜치 탐지 (origin/HEAD → origin/<default>)
+    def _detect_default_branch() -> Optional[str]:
+        # 방법 A: symbolic-ref
+        a = _run(["git", "symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD"], cwd=repo_root)
+        if a.returncode == 0:
+            val = a.stdout.strip()      # e.g., "origin/main"
+            if "/" in val:
+                return val.split("/", 1)[1]
+
+        # 방법 B: remote show origin
+        b = _run(["git", "remote", "show", "origin"], cwd=repo_root)
+        if b.returncode == 0:
+            m = re.search(r"HEAD branch:\s+([^\s]+)", b.stdout)
+            if m:
+                return m.group(1)
+
+        return None
+
+    default_branch = _detect_default_branch()
+    # 최후수단: main → master 순으로 시도
+    candidate_branches = [b for b in [default_branch, "main", "master"] if b]
+
+    # 4) git add
+    add_res = _run(["git", "add", str(rel_file_path)], cwd=repo_root)
+    if add_res.returncode != 0:
+        raise RuntimeError(f"git add 실패:\n{add_res.stderr}")
+
+    # 5) 변경 사항이 있는지 확인 (staged 기준)
+    # 특정 파일만 대상으로 조용히(quiet) 체크
+    diff_cached = _run(["git", "diff", "--cached", "--quiet", "--", str(rel_file_path)], cwd=repo_root)
+    has_staged_change = diff_cached.returncode == 1  # 0: 변경 없음, 1: 변경 있음, 2: 에러
+
+    # 6) commit (필요할 때만)
+    if has_staged_change:
+        commit_msg = f"{rel_file_path.name} 파일 자동 추가/업데이트"
+        commit_res = _run(["git", "commit", "-m", commit_msg], cwd=repo_root)
+        if commit_res.returncode != 0:
+            raise RuntimeError(f"git commit 실패:\n{commit_res.stderr}")
+    # 변경 없으면 커밋 생략
+
+    # 7) push (기본 브랜치 후보 순회)
+    last_err = None
+    for br in candidate_branches:
+        push_res = _run(["git", "push", "origin", br], cwd=repo_root)
+        if push_res.returncode == 0:
+            default_branch = br
+            break
+        last_err = push_res.stderr
+    else:
+        # 모든 후보 브랜치 push 실패
+        raise RuntimeError(
+            "git push 실패: 기본 브랜치를 찾거나 푸시하지 못했습니다.\n"
+            f"시도한 브랜치: {candidate_branches}\n"
+            f"마지막 오류:\n{(last_err or '').strip()}\n\n"
+            "가능한 원인:\n"
+            "1) 인증 문제: GitHub 토큰/SSH 키 자격 증명 확인\n"
+            "2) 권한 문제: repository 쓰기 권한\n"
+            "3) 브랜치 문제: 원격 브랜치 존재 여부 또는 보호 규칙"
+        )
+
+    # 8) 웹 URL 생성 (SSH/HTTPS 모두 대응해서 https://github.com/owner/repo 형태로 통일)
+    def _to_https_web_url(remote: str) -> Optional[str]:
+        remote = remote.strip()
+        if remote.endswith(".git"):
+            remote = remote[:-4]
+
+        # SSH: git@github.com:owner/repo
+        m = re.match(r"git@([^:]+):(.+)$", remote)
+        if m:
+            host = m.group(1)
+            path = m.group(2)
+            return f"https://{host}/{path}"
+
+        # HTTPS: https://github.com/owner/repo
+        if remote.startswith("http://") or remote.startswith("https://"):
+            return remote
+
+        return None
+
+    web_base = _to_https_web_url(origin_url)
+    if not web_base:
+        # 웹 URL로 바꾸지 못하면 리포 루트 경로와 origin을 알려주고 종료
+        raise RuntimeError(
+            "origin URL을 웹 URL로 변환하지 못했습니다.\n"
+            f"origin: {origin_url}\n"
+            "GitHub(또는 호환 호스트) 원격인지 확인하세요."
+        )
+
+    web_url = f"{web_base}/blob/{default_branch}/{str(rel_file_path).replace(os.sep, '/')}"
+    print("깃허브 파일 업로드 완료!!")
+    return web_url
+
+
+
+def is_github_repo_public(repo_url: str) -> bool:
+    m = re.search(r"github\.com[:/](?P<owner>[^/]+)/(?P<repo>[^/.]+)", repo_url)
+    if not m:
+        raise ValueError("유효한 GitHub URL이 아닙니다.")
+    owner, repo = m.group("owner"), m.group("repo")
+
+    api_url = f"https://api.github.com/repos/{owner}/{repo}"
+    resp = requests.get(api_url)
+    
+    if resp.status_code == 200:
+        data = resp.json()
+        return not data.get("private", True)
+    elif resp.status_code == 404:
+        # 접근 불가 = 비공개이거나 존재하지 않음
+        return False
+    else:
+        raise RuntimeError(f"API 오류: {resp.status_code}")
+    
+
+    
