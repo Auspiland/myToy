@@ -395,6 +395,48 @@ admin_level 4 지역을 필터링하여 whole.geojson 생성
 
 ---
 
+## 버전 히스토리
+
+### v2 (2025-10-28)
+
+#### 주요 개선사항
+
+**1. 코드 품질 향상**
+- 하드코딩된 경로 제거: `update_polygon.py`, `update_center_coords.py`를 `BASE_PATH` 기반으로 변경
+- 매직 넘버 제거: 상수를 `common_constants.py`로 분리
+- 로깅 시스템 도입: `print()` → `logging` 모듈로 전면 교체
+
+**2. 공통 모듈화**
+- `common_constants.py` 생성: 파이프라인 전체에서 사용하는 공통 상수 통합
+  - `BORDER_LINE_COORDS`, `KR_CENTER_LON/LAT`, `INCHEON_HARDCODED` 등
+  - 중복 코드 제거 및 일관성 확보
+
+**3. 에러 핸들링 개선**
+- `traceback` 모듈 추가: 상세한 에러 정보 출력
+- API 키 검증: `update_polygon.py`에서 `.env` 파일 누락 시 명확한 에러 메시지
+
+**4. 버그 수정**
+- `coord2region.py:237`: None 딕셔너리 안전 처리
+- `update_center_coords.py:72`: `.geojson` 중복 생성 방지
+- `translate_regionname.py:46`: 중첩 JSON 중괄호 올바른 파싱
+
+**5. 테스트 코드 분리**
+- `test_coord2region.py` 생성: 테스트 코드를 별도 파일로 분리
+
+**6. 매개변수 검증**
+- `coord2region.py`의 `list_regions_in_center_box()`: 입력값 검증 로직 추가
+
+**7. API 개선**
+- `update_polygon.py`: V-World API 재시도 로직 개선
+- 환경 변수 경로를 BASE_PATH 기반으로 안전하게 처리
+
+#### 파일 변경 사항
+- 신규: `common_constants.py` - 공통 상수 모듈
+- 신규: `test_coord2region.py` - coord2region 테스트 스크립트
+- 수정: `update_polygon.py`, `update_center_coords.py`, `check_shapefile.py`, `coord2region.py`, `translate_regionname.py`
+
+---
+
 ## 주의사항
 
 1. 모든 스크립트는 `config.py`의 `BASE_PATH`를 사용합니다.

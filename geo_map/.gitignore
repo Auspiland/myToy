@@ -1,3 +1,8 @@
 .env
 __pycache__
 not_using_data/
+test*.ipynb
+using_data/*
+!using_data/.gitkeep
+static/*
+!static/.gitkeep

@@ -42,14 +42,32 @@ def translate_names_with_llm(eng_names, seed_map=None):
 
     resp = response_GPT(system_prompt=system_prompt, user_prompt=user_prompt)
 
-    # LLM이 코드블럭/텍스트를 감싸는 경우 대비, 최초/최후 중괄호만 추출
+    # LLM이 코드블럭/텍스트를 감싸는 경우 대비, JSON 객체 추출
+    # 버그 수정: 중첩 중괄호를 올바르게 처리
     start = resp.find("{")
-    end = resp.rfind("}")
-    if start == -1 or end == -1 or end < start:
+    if start == -1:
         raise ValueError("LLM 응답에서 JSON 객체를 찾을 수 없습니다.")
 
+    # 중괄호 균형 추적
+    brace_count = 0
+    end = -1
+    for i in range(start, len(resp)):
+        if resp[i] == '{':
+            brace_count += 1
+        elif resp[i] == '}':
+            brace_count -= 1
+            if brace_count == 0:
+                end = i
+                break
+
+    if end == -1:
+        raise ValueError("LLM 응답에서 닫는 중괄호를 찾을 수 없습니다.")
+
     llm_json_text = resp[start : end + 1]
-    llm_map = json.loads(llm_json_text)
+    try:
+        llm_map = json.loads(llm_json_text)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"LLM 응답을 JSON으로 파싱할 수 없습니다: {e}\n응답: {llm_json_text[:200]}")
 
     # 시드와 병합
     out = dict(seed_map)

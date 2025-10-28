@@ -148,35 +148,35 @@ for feature in boundaries_data['features']:
     center_lon = feature['properties']['center_lon']
     center_lat = feature['properties']['center_lat']
 
-    print(f"\nFetching geometry for: {name} ({name_en})")
-    print(f"  Center point: ({center_lon}, {center_lat})")
+    logger.info(f"\nFetching geometry for: {name} ({name_en})")
+    logger.info(f"  Center point: ({center_lon}, {center_lat})")
 
     geometry, success, retry_count = fetch_geometry_with_retry(
-        url, V_KEY, center_lon, center_lat, max_retries=9
+        url, V_KEY, center_lon, center_lat
     )
 
     if success:
         feature['geometry'] = geometry
         updated_count += 1
         if retry_count > 0:
-            print(f"  [OK] Updated successfully (after {retry_count} retries)")
+            logger.info(f"  [OK] Updated successfully (after {retry_count} retries)")
         else:
-            print(f"  [OK] Updated successfully")
+            logger.info(f"  [OK] Updated successfully")
     else:
-        print(f"  [FAIL] Could not fetch geometry after {retry_count} attempts")
+        logger.error(f"  [FAIL] Could not fetch geometry after {retry_count} attempts")
         failed_regions.append(name)
 
-print(f"\n{'='*60}")
-print(f"Total {updated_count} regions updated successfully")
+logger.info(f"\n{'='*60}")
+logger.info(f"Total {updated_count} regions updated successfully")
 
 if failed_regions:
-    print(f"\nFailed regions ({len(failed_regions)}):")
+    logger.warning(f"\nFailed regions ({len(failed_regions)}):")
     for region in failed_regions:
-        print(f"  - {region}")
+        logger.warning(f"  - {region}")
 
 # 수정된 데이터 저장
-print(f"\nSaving updated data to: {output_file}")
+logger.info(f"\nSaving updated data to: {output_file}")
 with open(output_file, 'w', encoding='utf-8') as f:
     json.dump(boundaries_data, f, ensure_ascii=False, indent=2)
 
-print("Done!")
+logger.info("Done!")

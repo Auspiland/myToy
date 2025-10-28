@@ -1,14 +1,20 @@
 import os
 import re
+import logging
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Polygon, Point
 from shapely.validation import make_valid
 
+# 로깅 설정
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logger = logging.getLogger(__name__)
+
 # -------------------------------
 # 설정 (기존과 동일)
 # -------------------------------
 from config import BASE_PATH
+from scripts.common_constants import DEFAULT_CENTER_RATIO
 
 SOUTH_KOREA = os.path.join(BASE_PATH, "south-korea-251021-free.shp")
 NORTH_KOREA = os.path.join(BASE_PATH, "north-korea-251021-free.shp")
@@ -56,7 +62,7 @@ def load_and_merge_shapefiles(paths, name_col, src_crs):
 # 중앙 박스(비율)
 # -------------------------------
 
-def _center_box_polygon_ratio(rect_coords, ratio=0.30):
+def _center_box_polygon_ratio(rect_coords, ratio=DEFAULT_CENTER_RATIO):
     """
     직사각형(rect_coords) 내부의 '가운데 ratio' 박스를 생성.
     반환: (inner_poly_wgs84(SRC_CRS), inner_poly_m(AREA_CRS))
@@ -234,26 +240,27 @@ def _find_parents(name: str):
         return {}
 
     # ---------- 정확 매칭 ----------
-    if key in (_S_EMD or {}):
+    # 버그 수정: _S_EMD가 None일 수 있으므로 안전하게 처리
+    if _S_EMD and key in _S_EMD:
         _, sgg, sido = _S_EMD[key]
         return {"country":"KR","level":"emd","parent_sgg":sgg,"parent_sido":sido,
                 "match_source":"south-emd","name_match_type":"exact","name_match_score":len(key)}
 
-    if key in (_S_SGG or {}):
+    if _S_SGG and key in _S_SGG:
         sgg, sido = _S_SGG[key]
         return {"country":"KR","level":"sgg","parent_sgg":None,"parent_sido":sido,
                 "match_source":"south-sgg","name_match_type":"exact","name_match_score":len(key)}
 
-    if key in (_S_SIDO or set()):
+    if _S_SIDO and key in _S_SIDO:
         return {"country":"KR","level":"sido","parent_sgg":None,"parent_sido":None,
                 "match_source":"south-sido","name_match_type":"exact","name_match_score":len(key)}
 
-    if key in (_N_SGG or {}):
+    if _N_SGG and key in _N_SGG:
         sgg, sido = _N_SGG[key]
         return {"country":"KP","level":"sgg","parent_sgg":None,"parent_sido":sido,
                 "match_source":"north-sgg","name_match_type":"exact","name_match_score":len(key)}
 
-    if key in (_N_SIDO or set()):
+    if _N_SIDO and key in _N_SIDO:
         return {"country":"KP","level":"sido","parent_sgg":None,"parent_sido":None,
                 "match_source":"north-sido","name_match_type":"exact","name_match_score":len(key)}
 
@@ -264,38 +271,44 @@ def _find_parents(name: str):
         if (best is None) or (cand["_score"] > best["_score"]):
             best = cand
 
-    m_key, score = _best_partial_key_match((_S_EMD or {}).keys(), key)
-    if m_key:
-        emd, sgg, sido = _S_EMD[m_key]
-        _pick({"country":"KR","level":"emd","parent_sgg":sgg,"parent_sido":sido,
-               "match_source":"south-emd~contains","name_match_type":"contains",
-               "name_match_score":score,"_score":score})
+    # 버그 수정: 딕셔너리가 None이 아닐 때만 keys() 호출
+    if _S_EMD:
+        m_key, score = _best_partial_key_match(_S_EMD.keys(), key)
+        if m_key:
+            emd, sgg, sido = _S_EMD[m_key]
+            _pick({"country":"KR","level":"emd","parent_sgg":sgg,"parent_sido":sido,
+                   "match_source":"south-emd~contains","name_match_type":"contains",
+                   "name_match_score":score,"_score":score})
 
-    m_key2, score2 = _best_partial_key_match((_S_SGG or {}).keys(), key)
-    if m_key2:
-        sgg, sido = _S_SGG[m_key2]
-        _pick({"country":"KR","level":"sgg","parent_sgg":None,"parent_sido":sido,
-               "match_source":"south-sgg~contains","name_match_type":"contains",
-               "name_match_score":score2,"_score":score2})
+    if _S_SGG:
+        m_key2, score2 = _best_partial_key_match(_S_SGG.keys(), key)
+        if m_key2:
+            sgg, sido = _S_SGG[m_key2]
+            _pick({"country":"KR","level":"sgg","parent_sgg":None,"parent_sido":sido,
+                   "match_source":"south-sgg~contains","name_match_type":"contains",
+                   "name_match_score":score2,"_score":score2})
 
-    m_key3, score3 = _best_partial_key_match((_S_SIDO or set()), key)
-    if m_key3:
-        _pick({"country":"KR","level":"sido","parent_sgg":None,"parent_sido":None,
-               "match_source":"south-sido~contains","name_match_type":"contains",
-               "name_match_score":score3,"_score":score3})
+    if _S_SIDO:
+        m_key3, score3 = _best_partial_key_match(_S_SIDO, key)
+        if m_key3:
+            _pick({"country":"KR","level":"sido","parent_sgg":None,"parent_sido":None,
+                   "match_source":"south-sido~contains","name_match_type":"contains",
+                   "name_match_score":score3,"_score":score3})
 
-    m_key4, score4 = _best_partial_key_match((_N_SGG or {}).keys(), key)
-    if m_key4:
-        sgg, sido = _N_SGG[m_key4]
-        _pick({"country":"KP","level":"sgg","parent_sgg":None,"parent_sido":sido,
-               "match_source":"north-sgg~contains","name_match_type":"contains",
-               "name_match_score":score4,"_score":score4})
+    if _N_SGG:
+        m_key4, score4 = _best_partial_key_match(_N_SGG.keys(), key)
+        if m_key4:
+            sgg, sido = _N_SGG[m_key4]
+            _pick({"country":"KP","level":"sgg","parent_sgg":None,"parent_sido":sido,
+                   "match_source":"north-sgg~contains","name_match_type":"contains",
+                   "name_match_score":score4,"_score":score4})
 
-    m_key5, score5 = _best_partial_key_match((_N_SIDO or set()), key)
-    if m_key5:
-        _pick({"country":"KP","level":"sido","parent_sgg":None,"parent_sido":None,
-               "match_source":"north-sido~contains","name_match_type":"contains",
-               "name_match_score":score5,"_score":score5})
+    if _N_SIDO:
+        m_key5, score5 = _best_partial_key_match(_N_SIDO, key)
+        if m_key5:
+            _pick({"country":"KP","level":"sido","parent_sgg":None,"parent_sido":None,
+                   "match_source":"north-sido~contains","name_match_type":"contains",
+                   "name_match_score":score5,"_score":score5})
 
     if best:
         best.pop("_score", None)
@@ -312,9 +325,36 @@ def list_regions_in_center_box(
     polygon_paths=None,
     point_paths=None,
     name_col=NAME_COL,
-    center_ratio=0.30,
+    center_ratio=DEFAULT_CENTER_RATIO,
     fclass_allow=("city", "county")
 ):
+    """
+    사각형 중앙 박스 내 도시/군/구 목록 추출
+
+    Args:
+        rect_coords: 사각형 좌표 리스트 (최소 3개 이상의 [lon, lat] 쌍)
+        polygon_paths: Polygon shapefile 경로 리스트
+        point_paths: Point shapefile 경로 리스트
+        name_col: 이름 컬럼명
+        center_ratio: 중심 박스 비율 (0.0 ~ 1.0)
+        fclass_allow: 허용할 fclass 튜플
+
+    Returns:
+        GeoDataFrame: 중심 박스 내 지역 목록
+
+    Raises:
+        ValueError: 입력 매개변수가 유효하지 않은 경우
+    """
+    # 매개변수 검증
+    if not isinstance(rect_coords, (list, tuple)) or len(rect_coords) < 3:
+        raise ValueError(f"rect_coords must be a list/tuple of at least 3 coordinates, got {type(rect_coords)} with length {len(rect_coords) if isinstance(rect_coords, (list, tuple)) else 'N/A'}")
+
+    if not all(isinstance(c, (list, tuple)) and len(c) == 2 for c in rect_coords):
+        raise ValueError("Each coordinate in rect_coords must be a [lon, lat] pair")
+
+    if not (0.0 < center_ratio <= 1.0):
+        raise ValueError(f"center_ratio must be between 0.0 and 1.0, got {center_ratio}")
+
     if polygon_paths is None:
         polygon_paths = [PLACES_POLYGON_PATH_S, PLACES_POLYGON_PATH_N]
     if point_paths is None:
@@ -474,25 +514,5 @@ def get_representative_region(rect_coords,
 # -------------------------------
 # 사용 예시
 # -------------------------------
-if __name__ == "__main__":
-    rect_coords = [
-        [126.93167575079963, 37.10178611970895],
-        [127.50557082786963, 37.10314793150034],
-        [126.93507098285538, 36.64210788827871],
-        [127.50553754496315, 36.643447265652945]
-    ]
-
-    # 1) 중앙 박스 내 도시/군/구 목록 (ratio 방식만)
-    gdf_center = list_regions_in_center_box(
-        rect_coords,
-        center_ratio=0.70  # 가운데 70%
-    )
-    print(f"[중앙 박스 포함 지역 수] {len(gdf_center)}")
-    if len(gdf_center):
-        # 이름 + 상위지역 간단 출력
-        cols = [NAME_COL, "fclass", "type", "country", "level", "parent_sgg", "parent_sido", "match_source"]
-        print(gdf_center[cols].head(30).to_string(index=False))
-
-    # 2) 대표 지역명 하나 (상위지역 포함)
-    # result = get_representative_region(rect_coords)
-    # print("대표 지역명:", result)
+# 테스트 코드는 test_coord2region.py로 분리되었습니다.
+# 실행: python scripts/test_coord2region.py

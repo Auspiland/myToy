@@ -1,8 +1,14 @@
 import os
 import json
+import logging
+import traceback
 import geopandas as gpd
 from shapely.geometry import Polygon, MultiPolygon, mapping
 from config import BASE_PATH
+
+# 로깅 설정
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logger = logging.getLogger(__name__)
 
 NSKOREA = os.path.join(BASE_PATH, "ns_korea_shp")
 N_KOREA = os.path.join(BASE_PATH, "prk_adm_wfp_20190624_shp")
@@ -39,7 +45,8 @@ def print_boundaries(DIR: str, FULL: bool = False, PREVIEW_COORDS: int = 10):
         try:
             gdf = gpd.read_file(shp)
         except Exception as e:
-            print(f"[READ FAIL] {shp} -> {e}")
+            logger.error(f"[READ FAIL] {shp}")
+            logger.error(traceback.format_exc())
             continue
 
         name_col = _pick_first_existing_col(
@@ -133,7 +140,8 @@ def print_infos_dir(DIR):
         try:
             gdf = gpd.read_file(file_path)  # Shapefile은 .cpg 기준 인코딩 자동 처리
         except Exception as e:
-            print(f"[READ FAIL] {file_path} -> {e}")
+            logger.error(f"[READ FAIL] {file_path}")
+            logger.error(traceback.format_exc())
             continue
 
         print(f"\n=== {file_path} ===")
@@ -204,13 +212,14 @@ def describe_shapefile(shp_path: str, sample_n: int = 5):
     - sample_n: 미리보기로 출력할 행(row) 개수
     """
     if not os.path.exists(shp_path):
-        print(f"[ERROR] 파일을 찾을 수 없습니다: {shp_path}")
+        logger.error(f"파일을 찾을 수 없습니다: {shp_path}")
         return
 
     try:
         gdf = gpd.read_file(shp_path)
     except Exception as e:
-        print(f"[ERROR] 파일을 읽는 중 오류 발생: {e}")
+        logger.error(f"파일을 읽는 중 오류 발생: {shp_path}")
+        logger.error(traceback.format_exc())
         return
 
     print(f"\n=== Shapefile 정보: {shp_path} ===")
