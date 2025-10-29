@@ -2,6 +2,8 @@
 
 좌표 또는 사각형 영역을 한반도(남한/북한) 행정구역으로 변환하는 프로젝트
 
+<!-- AUTO-UPDATE:START -->
+<!-- 이 섹션은 GitHub Actions에 의해 자동으로 업데이트됩니다 -->
 ## 주요 기능
 
 - 사각형 영역 → 행정구역 변환 (광역시/도 단위)
@@ -321,3 +323,10 @@ converter.convert_json_file("using_data/data.json", "using_data/converted_data.j
 ## 라이선스
 
 MIT License
+
+---
+
+
+<!-- AUTO-UPDATE:END -->
+
+<!-- LAST_PROCESSED_SHA: none -->

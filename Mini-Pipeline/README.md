@@ -64,3 +64,11 @@ Opensearch 또한 spark 코드로 구현하였습니다.
 Opensearch도 `writeStream` 을 활용하여 데이터를 삽입하였고, search-container에서는 **opensearch Client**를 생성하고 query를 던져 데이터를 WEB에 출력하였습니다.
 
 모든 dataframe 확인 및 디버깅은 **writeStream**의 **Console** 옵션을 활용했습니다.
+
+---
+
+<!-- AUTO-UPDATE:START -->
+<!-- 이 섹션은 GitHub Actions에 의해 자동으로 업데이트됩니다 -->
+<!-- AUTO-UPDATE:END -->
+
+<!-- LAST_PROCESSED_SHA: none -->
