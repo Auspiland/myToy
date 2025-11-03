@@ -3,7 +3,6 @@
 좌표 또는 사각형 영역을 한반도(남한/북한) 행정구역으로 변환하는 프로젝트
 
 <!-- AUTO-UPDATE:START -->
-<!-- 이 섹션은 GitHub Actions에 의해 자동으로 업데이트됩니다 -->
 ## 주요 기능
 
 - 사각형 영역 → 행정구역 변환 (광역시/도 단위)
@@ -152,6 +151,7 @@ geo_map/
 │   └── ...                      # 경계 데이터 처리 파이프라인
 │
 ├── src/
+│   ├── __init__.py              # 패키지 초기화 (추가)
 │   └── common_utils.py          # LLM API 호출, GitHub 푸시 등
 │
 ├── using_data/                  # 핵심 행정구역 GeoJSON 데이터 ⭐
@@ -325,10 +325,8 @@ converter.convert_json_file("using_data/data.json", "using_data/converted_data.j
 MIT License
 
 ---
-
-
 <!-- AUTO-UPDATE:END -->
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: 60ca5f0264abc7b12aee76bdf7529f3715ce9899 -->
+<!-- LAST_PROCESSED_SHA: 31e7450ed5ad8fd12c69376320673f0c20295ba2 -->
