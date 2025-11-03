@@ -16,7 +16,7 @@ API_KEY   = os.environ.get("OPENAI_API_KEY", "")
 
 client = OpenAI(api_key=API_KEY)
 
-def response_GPT(system_prompt="", user_prompt=None, messages=None, model="gpt-5"):
+def response_GPT(system_prompt="", user_prompt=None, messages=None, model="gpt-5-nano"):
     if not user_prompt and not messages:
         raise ValueError("LLM 입력값이 없습니다.")
     resp = client.responses.create(
@@ -29,7 +29,7 @@ def response_GPT(system_prompt="", user_prompt=None, messages=None, model="gpt-5
     text = resp.output_text
     return text
 
-def response_GPT_stream(messages, model="gpt-5"):
+def response_GPT_stream(messages, model="gpt-5-nano"):
     with client.responses.stream(
         model=model,
         input=messages
@@ -104,7 +104,7 @@ def response_GPT_with_stream_fallback(
     system_prompt="",
     user_prompt=None,
     messages=None,
-    model="gpt-5",
+    model="gpt-5-nano",
     max_output_tokens=None,
     max_retries=3,
     fallback_stream=True,

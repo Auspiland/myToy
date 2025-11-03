@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: readme-updates
+  cancel-in-progress: false
+
 env:
   TARGET_DIR: "geo_map"
   README_PATH: "geo_map/README.md"

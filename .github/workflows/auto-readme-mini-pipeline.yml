@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: readme-updates
+  cancel-in-progress: false
+
 env:
   TARGET_DIR: "Mini-Pipeline"
   README_PATH: "Mini-Pipeline/README.md"

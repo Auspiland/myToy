@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: readme-updates
+  cancel-in-progress: false
+
 env:
   TARGET_DIR: "B_project"
   README_PATH: "B_project/README.md"

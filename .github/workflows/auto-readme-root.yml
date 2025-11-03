@@ -2,12 +2,16 @@ name: Auto Update Root README
 
 on:
   schedule:
-    - cron: "30 3 * * *"     # 매일 12:30 KST = 03:30 UTC (프로젝트 README 업데이트 후)
-    - cron: "30 10 * * *"    # 매일 19:30 KST = 10:30 UTC
+    - cron: "2 3 * * *"      # 매일 12:02 KST = 03:02 UTC (프로젝트 README 업데이트 2분 후)
+    - cron: "2 10 * * *"     # 매일 19:02 KST = 10:02 UTC
   workflow_dispatch:          # 수동 실행도 가능
 
 permissions:
   contents: write
+
+concurrency:
+  group: readme-updates
+  cancel-in-progress: false
 
 env:
   README_PATH: "README.md"
