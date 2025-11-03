@@ -1,0 +1,47 @@
+# Road Risk Pipeline Configuration
+# Environment variables will override these defaults
+
+# Base paths
+base_path: "/opt/road"
+bronze_path: "/opt/road/output/bronze"
+silver_path: "/opt/road/output/silver"
+gold_path: "/opt/road/output/gold"
+
+# Input data
+input_csv: "/opt/road/data/roads.csv"
+lookup_load_grade_csv: "/opt/road/conf/load_grade_lookup.csv"
+
+# Spark configurations
+spark:
+  app_name_prefix: "road_risk"
+  executor_memory: "2g"
+  driver_memory: "1g"
+  executor_cores: 2
+
+# Risk scoring parameters
+risk_weights:
+  capacity: 0.35
+  age: 0.25
+  traffic: 0.20
+  span: 0.10
+  width: 0.05
+  metadata: 0.05
+
+risk_thresholds:
+  high: 0.6
+  medium: 0.3
+
+# Data quality thresholds
+data_quality:
+  max_null_ratio: 0.9
+  min_year: 1900
+  max_year: 2025
+  max_age_years: 200
+  max_traffic: 100000
+  max_span_length: 200
+
+# Normalization parameters
+normalization:
+  age_max: 50  # years
+  traffic_max: 40000  # vehicles per day
+  span_max: 80  # meters
