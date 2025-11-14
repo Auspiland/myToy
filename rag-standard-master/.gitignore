@@ -1,0 +1,12 @@
+.ipynb_checkpoints
+__pycache__
+.env
+python_envs
+benchmark/*
+data/*
+logs/*
+opensearch_data/*
+rag_standard/data_processing/backup
+rag_standard/data_processing/YW/logs/*
+k8s-stacks/jupyter/jupyter-rag-standard-v2.tar
+.vscode/

@@ -1,0 +1,162 @@
+# -------------------------------------------------------------
+# 1) ConfigMap: opensearch.yml
+# -------------------------------------------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rag-standard-opensearch-config
+data:
+  opensearch.yml: |
+    cluster.name: rag-standard-opensearch-cluster
+    node.name: rag-standard-opensearch-0
+    discovery.type: single-node          # 단일 노드 구성 
+    network.host: 0.0.0.0
+    http.port: 9200
+    path.data: /usr/share/opensearch/data
+    path.logs: /usr/share/opensearch/logs
+    bootstrap.memory_lock: true
+    plugins.security.disabled: true      # 데모용, 운영 시엔 반드시 보안 활성화
+
+---
+# -------------------------------------------------------------
+# 2) Service: ClusterIP -> 9200
+# -------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-standard-opensearch-service
+spec:
+  type: ClusterIP
+  selector:
+    app: rag-standard-opensearch
+  ports:
+    - name: http
+      port: 9200        # 클러스터 내부 접근 포트
+      targetPort: 9200  # 컨테이너 노출 포트
+
+---
+# -------------------------------------------------------------
+# 3) StatefulSet
+# -------------------------------------------------------------
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rag-standard-opensearch
+spec:
+  serviceName: rag-standard-opensearch-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rag-standard-opensearch
+  template:
+    metadata:
+      labels:
+        app: rag-standard-opensearch
+    spec:
+      securityContext:
+        runAsUser: 1000   # opensearch 이미지 uid
+        fsGroup: 1000
+      containers:
+        - name: rag-standard-opensearch-pod
+          image: opensearch-knn-nori:2.19.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9200
+              name: http
+              protocol: TCP
+          env:
+            - name: OPENSEARCH_JAVA_OPTS     # JVM 메모리 예시
+              value: "-Xmx4g -Xss1m"
+            - name: TZ                       # 로그 타임존
+              value: "Asia/Seoul"
+            - name: DISABLE_SECURITY_PLUGIN  # plugins.security.disabled=true와 동일
+              value: "true"
+            - name: DISABLE_INSTALL_DEMO_CONFIG   # 데모 인증서 스크립트 비활성
+              value: "true"
+          volumeMounts:
+            - name: config
+              mountPath: /usr/share/opensearch/config/opensearch.yml
+              subPath: opensearch.yml
+            - name: data
+              mountPath: /usr/share/opensearch/data
+            - name: logs
+              mountPath: /usr/share/opensearch/logs
+      volumes:
+        - name: config
+          configMap:
+            name: rag-standard-opensearch-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: rag-standard-opensearch-data-pvc
+        - name: logs
+          persistentVolumeClaim:
+            claimName: rag-standard-opensearch-logs-pvc
+
+# -------------------------------------------------------------
+# 4) PV + PVC
+# -------------------------------------------------------------
+# ──────────────────────────────────────────────
+# 1) PersistentVolume: data 디스크
+# ──────────────────────────────────────────────
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rag-standard-opensearch-data-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  hostPath:
+    path: /data/aisvc_data/RAG/Rag_Standard_v2/opensearch_data/data
+
+---
+# ──────────────────────────────────────────────
+# 2) PersistentVolumeClaim: data PVC
+# ──────────────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rag-standard-opensearch-data-pvc
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# ──────────────────────────────────────────────
+# 3) PersistentVolume: logs 디스크
+# ──────────────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rag-standard-opensearch-logs-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  hostPath:
+    path: /data/aisvc_data/RAG/Rag_Standard_v2/opensearch_data/logs
+
+---
+# ──────────────────────────────────────────────
+# 4) PersistentVolumeClaim: logs PVC
+# ──────────────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rag-standard-opensearch-logs-pvc
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

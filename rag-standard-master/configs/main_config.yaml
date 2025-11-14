@@ -1,0 +1,24 @@
+# --- 메타데이터 값 설정 ---
+data_processing_settings:
+  version_name: "Example_3"
+  root_path: "/data/aisvc_data/RAG/Rag_Standard_v2/data"
+  file_path: "/data/aisvc_data/RAG/Rag_Standard_v2/data/Original"
+  page_tf: "True"
+  token_tf: "False"
+  api_tf: "False"
+  qdrant_tf: "False"
+
+# --- Upstage API 설정 ---
+upstage_api_settings:
+  url: "https://api.upstage.ai/v1/document-ai/document-parse"
+  model: "document-parse-240910"
+  max_tokens: 2000
+  overlap_tokens: 300
+  token_limit: 3900
+
+# --- DB 설정 ---
+db_settings:
+  opensearch_index: "rag_example"
+  qdrant_host: "172.16.16.192"
+  qdrant_port: "29043"
+  qdrant_collection: "RAG Example"

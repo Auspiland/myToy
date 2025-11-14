@@ -1,0 +1,100 @@
+# -------------------------------------------------------------
+# 1) ConfigMap: opensearch.yml
+# -------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-service-jupyter-rag-standard
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-service-jupyter-rag-standard
+  template:
+    metadata:
+      name: ai-service-jupyter-rag-standard-pod
+      labels:
+        app: ai-service-jupyter-rag-standard
+    spec:
+      containers:
+      - command:
+        - /root/miniconda3/bin/jupyter
+        - lab
+        - --ServerApp.base_url=/29777
+        image: ai_service_jupyter-rag-standard:2.0
+        imagePullPolicy: Never
+        name: ai-service-jupyter-rag-standard
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: projects
+        - mountPath: /root/.cache/huggingface/hub
+          name: model
+        - mountPath: /data/external
+          name: ext
+      volumes:
+      - hostPath:
+          path: /data
+          type: Directory
+        name: projects
+      - hostPath:
+          path: /data/ext-data/aisvc_data
+          type: Directory
+        name: ext
+      - hostPath:
+          path: /data/aisvc_data/models
+          type: Directory
+        name: model
+
+
+---
+# -------------------------------------------------------------
+# 2) Service
+# -------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service-jupyter-rag-standard-service
+  namespace: default
+spec:
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: jupyter
+    port: 29777
+    protocol: TCP
+    targetPort: 8888
+  selector:
+    app: ai-service-jupyter-rag-standard
+  sessionAffinity: None
+  type: ClusterIP
+
+---
+# -------------------------------------------------------------
+# 3) ingress
+# -------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  name: jupyter-rag-standard-ing
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: aisvc-jupyter.del-ai.t3q.ai
+    http:
+      paths:
+      - backend:
+          service:
+            name: ai-service-jupyter-rag-standard-service
+            port:
+              number: 29777
+        path: /29777
+        pathType: Prefix
