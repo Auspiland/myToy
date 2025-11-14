@@ -22,6 +22,22 @@
   - 영향을 받는 함수: response_GPT, response_GPT_stream, response_GPT_with_stream_fallback
   - 영향: model 인자를 생략하고 호출하던 기존 코드들은 이제 기본적으로 "gpt-5-nano"를 사용하게 됩니다. 특정 모델(예: gpt-5)을 계속 사용하려면 model 파라미터를 명시적으로 지정하세요.
 
+- 추가 파일: B_project/CT/kakao_history.ipynb
+  - 내용 요약: 두 개의 문제 풀이 함수가 포함된 노트북(파이썬 코드 셀).
+    1. solution(n, infection, edges, k)
+       - 설명: 간선 타입별로 연결요소를 비트마스크로 미리 계산한 뒤, 상태(감염된 노드 집합)를 비트마스크로 표현하여 단계(k) 이내에 감염 가능한 최대 노드 수를 BFS로 탐색하는 알고리즘입니다. 각 단계에서 타입 1/2/3 중 하나를 선택해 해당 타입에서 연결요소 전체가 전염되는 방식으로 상태 전이가 일어납니다.
+       - 시간 복잡도: 전처리(간선 타입별 연결요소 계산)는 O(n + m). 상태 탐색은 최악의 경우 상태 공간(2^n)에 비례하므로 지수적(최악: O(2^n * n))이며, 실제 성능은 n이 작을 때(예: n ≤ 20 등) 적절합니다.
+       - 반환값: k 단계 이내에 달성 가능한 최대 감염 노드 수(정수).
+    2. solution(dist_limit: int, split_limit: int) -> int
+       - 설명: 거리(분할) 예산 D와 한 경로에서 허용되는 분기 상한 S를 받아, 2-분기와 3-분기를 조합해 만들 수 있는 말단(leaf) 노드의 최대 개수를 시뮬레이션으로 계산합니다. 2^b * 3^a ≤ S 조건을 사용해 가능한 분기 조합을 탐색하고, 각 조합에 대해 D 예산을 사용해 레벨별 분할을 적용합니다.
+       - 시간 복잡도: p2/p3 길이(≈ log S)와 각 시뮬레이션이 최대 D 단계 만큼 수행되므로 O((log S) * D) 수준으로 예측됩니다.
+       - 반환값: 주어진 제약에서 얻을 수 있는 leaf(말단 노드) 최대값(정수).
+  - 주의: 노트북(.ipynb)이므로 바로 import 가능한 .py로 변환하여 사용하거나, 노트북의 코드 셀을 복사해 모듈화해서 사용하세요.
+
+- 추가 파일: B_project/special_prompt.md
+  - 내용 요약: FastAPI 기반 비동기 백엔드, PostgreSQL(Async), Redis, Docker Compose, GitLab CI/CD 등으로 구성된 "AI 포털" 프로젝트의 상세 문서(설치/구성/개발 규칙/배포/문서화 가이드 등). 백엔드 표준(Async, SQLAlchemy 2.0, Pydantic v2), 개발 워크플로우, Docker/CI 설정, 문서화 규칙 등이 포함되어 있습니다.
+  - 영향: 프로젝트 전반의 운영·개발 가이드 문서로 참조용이며 코드 동작에는 직접적인 변경을 주지 않습니다.
+
 사용 예시 (Python):
 ```python
 from B_project.CT.auto_solve.common_utils import (
@@ -47,8 +63,33 @@ result = response_GPT_with_stream_fallback(user_prompt="입력", max_retries=2, 
 print(result)
 ```
 
+사용 예시 (kakao_history 노트북에 포함된 함수 사용 예 — 노트북 코드를 모듈화했을 경우):
+```python
+# 예시 1: infection 문제
+# 그래프: n 노드, edges = [(x,y,t), ...], 초기 감염 정점 infection(1-based), 최대 단계 k
+n = 6
+infection = 1
+edges = [
+    (1, 2, 1),
+    (2, 3, 2),
+    (3, 4, 3),
+    (4, 5, 1),
+    (5, 6, 2),
+]
+k = 2
+# from B_project.CT.kakao_history import solution as solution_infection
+# print(solution_infection(n, infection, edges, k))
+
+# 예시 2: 분할(leaf 최대화) 문제
+dist_limit = 5
+split_limit = 12
+# from B_project.CT.kakao_history import solution as solution_leaves
+# print(solution_leaves(dist_limit, split_limit))
+```
+
 주의 사항:
 - 기본 모델 변경은 응답 지연, 응답 품질, 비용에 영향을 줄 수 있습니다. 필요에 따라 model 인자를 명시하여 원하는 모델을 사용하세요.
+- B_project/CT/kakao_history.ipynb 및 B_project/special_prompt.md 파일이 새로 추가되었습니다. 노트북의 코드를 재사용하려면 .py로 추출하거나 내용 일부를 모듈화해 사용하시기 바랍니다.
 - 이 README의 나머지 부분(알고리즘 목록 등)은 변경되지 않았습니다.
 <!-- AUTO-UPDATE:END -->
 
@@ -58,4 +99,4 @@ print(result)
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: 68e9d81c2c54c929592928fa903dc40b9c316051 -->
+<!-- LAST_PROCESSED_SHA: 1b96ddf2c7647028e3bed49b97b04152ef14a982 -->
