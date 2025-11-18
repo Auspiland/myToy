@@ -3,19 +3,19 @@
 
 <!-- AUTO-UPDATE:START -->
 ## geo_map
-- **설명**: 좌표 또는 사각형 영역을 대한민국(남·북) 행정구역으로 변환하고 GeoJSON으로 시각화하는 도구입니다.
-- **기술**: Python, Shapely/GeoPandas, STRtree 공간 인덱스, GeoJSON 출력
-- **특징**: 사각형→행정구역/좌표→행정구역 변환, 섬 자동 감지(비율 기반), 경계 조회 및 GeoJSON 생성/시각화
+- **설명**: 사각형 영역 또는 단일 좌표를 대한민국(남·북 포함) 행정구역으로 매핑하고 GeoJSON으로 출력·시각화하는 도구.
+- **기술**: Python, geopandas/shapely, STRtree 공간 인덱스, GeoJSON, Fiona 등 GIS 라이브러리.
+- **특징**: 사각형→행정구역(대표 텍스트/상세) 변환(최적화된 rect2region_fast_v2), 섬 지역 자동 감지 및 방향 기반 대표 표현, 행정구역 경계 조회·GeoJSON 생성·일괄 변환.
 
 ## Mini-Pipeline
-- **설명**: YouTube 스크립트 추출부터 문장 전처리·Kafka·OpenSearch 업로드까지의 E2E 스트리밍 파이프라인입니다.
-- **기술**: Docker/Docker Compose, Apache Spark(Structured Streaming), Kafka(kRaft), OpenSearch, FastAPI, Nginx, Kiwipiepy
-- **특징**: 컨테이너 기반 스트리밍 아키텍처(폴더 감시 → Spark → Kafka → OpenSearch), 대규모 전처리(오탈자 수정·문장 분리 등)와 Streaming UDF 적용, Docker 네트워크/비동기 구성
+- **설명**: YouTube 스크립트 추출을 시작으로 문장 전처리 후 Kafka/Opensearch로 적재하는 Docker 기반 E2E 스트리밍 파이프라인.
+- **기술**: Docker Compose, Spark Structured Streaming, Kafka(kRaft), OpenSearch, FastAPI, Nginx, Kiwipiepy(한국어 전처리), Selenium(데이터 수집 보조).
+- **특징**: 컨테이너화된 스트리밍 파이프라인(파일 감시 → Spark → Kafka → Opensearch), 한국어 전처리(UDF 형태의 Kiwi 적용) 및 실시간 색인/검색, 멀티네트워크 구성으로 서비스 분리.
 
 ## B_project
-- **설명**: 알고리즘 학습·코딩 테스트 풀이와 관련 도구들을 모아놓은 저장소입니다.
-- **기술**: Python(알고리즘 라이브러리), FastAPI, 비동기 DB(PostgreSQL Async), Redis, Docker Compose, CI/CD 문서
-- **특징**: boj_bible(자료구조·알고리즘 모듈) 제공, CT(코딩 테스트) 자동화 도구 및 예제 노트북 포함, LLM 헬퍼 함수 기본 모델이 gpt-5-nano로 변경된 유틸 영향 정보
+- **설명**: 알고리즘 학습 및 코딩 테스트 자동화용 유틸리티와 풀이 모음 프로젝트.
+- **기술**: Python 기반 알고리즘 모듈(자료구조·그래프·트리·문자열·고급 알고리즘), Jupyter 노트북, FastAPI/LLM 유틸(프로젝트 내 도구).
+- **특징**: boj_bible로 정리된 알고리즘 라이브러리(기본/그래프/트리/문자열/고급), CT 자동화·기록 도구 및 예제 노트북(kakao_history) 제공, LLM 호출 유틸의 기본 모델 변경 등 운영·개발 보조 기능.
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
@@ -23,4 +23,4 @@
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: 6e0c462da6f1fd2a23cea46cdf04b64fafb4b5b3 -->
+<!-- LAST_PROCESSED_SHA: a0221308e27055de73d0e3811093e8209b516c24 -->
