@@ -3,19 +3,19 @@
 
 <!-- AUTO-UPDATE:START -->
 ## geo_map
-- **설명**: 사각형 영역 또는 개별 좌표를 대한민국 행정구역(시/도/시군구 등)으로 빠르게 변환하고 시각화하는 도구입니다.  
-- **기술**: Python, Shapely/STRtree 공간 인덱스, GeoJSON 처리, GitHub push/파일 I/O.  
-- **특징**: 고성능 rect2region_fast_v2 기반 사각형→행정구역 변환(일괄 변환 지원), 섬 자동 감지 및 대표 텍스트 생성, 행정구역 경계 조회 및 GeoJSON 생성/시각화.
+- **설명**: 좌표 또는 사각형 영역을 대한민국 행정구역(시/도/시군구 등)으로 변환하고 경계·대표 텍스트·GeoJSON을 생성하는 도구
+- **기술**: Python, Shapely/STRtree 기반 공간 인덱스, GeoJSON 처리
+- **특징**: 사각형→행정구역(대량 처리 최적화), 좌표→행정구역 변환 및 경계 조회, GeoJSON 생성·시각화·섬 자동 감지
 
 ## Mini-Pipeline
-- **설명**: YouTube URL로부터 스크립트 추출 후 문장 전처리하여 Kafka/Opensearch에 업로드하는 스트리밍 E2E 파이프라인입니다.  
-- **기술**: Docker(다중 compose), Spark Structured Streaming, Kafka(kRaft), OpenSearch, FastAPI/Nginx, Kiwipiepy, Selenium(수집 보조).  
-- **특징**: 컨테이너 기반 다중 네트워크 아키텍처(실시간 스트리밍), Spark→Kafka→OpenSearch 흐름으로 연속 처리, 한국어 전처리(오탈자 보정·문장분리 등) 및 웹 검색 인터페이스 연동.
+- **설명**: YouTube URL에서 스크립트 추출 후 문장 전처리하여 Kafka와 Opensearch에 업로드하는 컨테이너 기반 E2E 스트리밍 파이프라인
+- **기술**: Docker Compose, Spark Structured Streaming, Kafka(kRaft), Opensearch, FastAPI, Nginx, Kiwipiepy
+- **특징**: 전체 컨테이너 아키텍처(Nginx→FastAPI→Spark), Spark로 Kafka/Opensearch 연동 및 스트리밍 처리, Kiwipiepy·pandas_udf 기반 한국어 전처리(오탈자·분문·불용어)
 
 ## B_project
-- **설명**: 알고리즘 학습·코딩 테스트 풀이용 라이브러리와 관련 도구 모음입니다.  
-- **기술**: Python 기반 알고리즘 모듈(자료구조·그래프·트리·문자열·고급 알고리즘), Jupyter 노트북, FastAPI/DevOps 문서(참고).  
-- **특징**: boj_bible(기초/그래프/트리/문자열/고급) 모듈 제공, 코딩 테스트 자동화·기록 도구(LLM 호출 유틸 포함, 기본 모델 gpt-5-nano 변경 안내), 예제 노트북(kakao_history) 및 운영·배포 가이드 문서 제공.
+- **설명**: 알고리즘 문제 풀이 및 코딩 테스트용 라이브러리·도구 모음 레포지토리
+- **기술**: Python 기반 알고리즘 모듈·노트북, (참고용) FastAPI/Async 운영 가이드 문서
+- **특징**: boj_bible(자료구조·그래프·문자열·고급 알고리즘) 모듈, CT 자동화·예제 노트북(문제 풀이 함수 포함), LLM 유틸 기본 모델이 'gpt-5-nano'로 변경된 공지 포함
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
@@ -24,4 +24,4 @@
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: 0ae09f600901c2093587d8c7efb3b0928619bf61 -->
+<!-- LAST_PROCESSED_SHA: 1906b6651137d95fe67b4ee68e146080d37f631f -->
