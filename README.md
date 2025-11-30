@@ -2,23 +2,20 @@
 잡동사니 프로젝트들의 모음입니다.
 
 <!-- AUTO-UPDATE:START -->
-<!-- AUTO-UPDATE:START -->
-
 ## geo_map
-- **설명**: 좌표 또는 사각형 영역을 대한민국(남한/북한) 행정구역으로 빠르게 변환하고 GeoJSON으로 출력하는 도구입니다.
-- **기술**: Python, Shapely/GeoPandas 기반 공간 인덱스(STRtree), GeoJSON, LLM 보조(지명 번역), GitHub 연동 스크립트.
-- **특징**: 사각형→행정구역(대표문구/상세) 변환(최적화된 rect2region_fast_v2), 섬 자동 감지 및 방향 기반 대표표현, 경계 조회·GeoJSON 생성 및 시각화.
+- **설명**: 사각형 영역 또는 좌표를 대한민국/북한 행정구역으로 변환하고 GeoJSON으로 시각화하는 공간 변환 도구입니다.
+- **기술**: Python, Shapely/STRtree 기반 공간색인, GeoJSON, Pandas 등 (pip로 의존성 설치).
+- **특징**: 빠른 Rect→Region 변환(rect2region_fast_v2), 좌표→행정구역 변환 및 경계 조회, 섬 자동 감지·GeoJSON 생성·배치 JSON 변환 지원.
 
 ## Mini-Pipeline
-- **설명**: YouTube URL로부터 스크립트를 추출해 문장 전처리 후 Kafka와 OpenSearch로 스트리밍 업로드하는 E2E 파이프라인입니다.
-- **기술**: Docker-compose, Apache Spark(Structured Streaming), Kafka(kRaft), OpenSearch, FastAPI/Nginx, KiwiPy(형태소처리), Selenium(스크립트 수집 보조).
-- **특징**: 컨테이너 기반 스트리밍 파이프라인(파일→Spark→Kafka→OpenSearch), 실시간 전처리(오탈자·문장분리·불용어), 웹 검색 인터페이스 연동.
+- **설명**: YouTube 스크립트 추출부터 문장 전처리, Kafka·Spark 스트리밍 파이프라인을 통해 OpenSearch에 업로드하는 E2E 도구입니다.
+- **기술**: Docker Compose, Spark Structured Streaming, Kafka(kRaft), OpenSearch, FastAPI, Nginx, Selenium, Kiwipiepy.
+- **특징**: 컨테이너 기반 멀티네트워크 아키텍처, Spark→Kafka→OpenSearch 흐름으로 실시간 처리, Kiwipiepy 및 pandas_udf를 이용한 언어 전처리와 검색용 인덱싱.
 
 ## B_project
-- **설명**: 알고리즘 연습 및 코딩 테스트 자동화·기록을 위한 툴셋과 참고 자료 모음입니다.
-- **기술**: Python 중심(알고리즘 라이브러리, Jupyter 노트북), FastAPI/Async 스택 문서(운영 가이드), LLM 연동 유틸.
-- **특징**: boj_bible(자료구조·그래프·트리·문자열 등 모듈화된 알고리즘 모음), CT 자동화 도구(LLM 호출 유틸 포함, 기본 모델 변경 알림), 문제 풀이용 노트북/예제 코드 제공.
-
+- **설명**: 알고리즘 문제 풀이용 라이브러리(boj_bible)와 코딩 테스트 자동화·기록 도구를 모아둔 프로젝트입니다.
+- **기술**: Python, Jupyter Notebook, 알고리즘 유틸 모듈, FastAPI 관련 문서(운영 가이드), LLM 유틸리티.
+- **특징**: 기본/그래프/트리/문자열/고급 알고리즘 모듈 제공, CT 자동화·LLM 헬퍼(response_GPT 계열) 포함(기본 모델이 gpt-5 → gpt-5-nano로 변경), kakao_history.ipynb·운영 가이드 문서 포함.
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
@@ -28,4 +25,4 @@
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: 35d3bea52714b2fb71b25f80bee8dcfea380cd5e -->
+<!-- LAST_PROCESSED_SHA: d181a7d6c013389c73312a204a71f4c0a812ca01 -->
