@@ -2,20 +2,24 @@
 잡동사니 프로젝트들의 모음입니다.
 
 <!-- AUTO-UPDATE:START -->
+<!-- AUTO-UPDATE:START -->
+
 ## geo_map
-- **설명**: 사각형 영역 또는 좌표를 한반도 행정구역(시/도/시군구 등)으로 빠르게 매핑하고 GeoJSON을 생성·시각화하는 지오프로세싱 도구입니다.  
-- **기술**: Python, Shapely/STRtree 기반 공간 인덱스, GeoJSON, 경계 데이터(대한민국/북한).  
-- **특징**: 사각형→행정구역 고속 변환(rect2region_fast_v2), 섬 자동 감지 및 방향 기반 대표 표현, 일괄 JSON/GeoJSON 생성·시각화.
+- **설명**: 사각형 영역 또는 좌표를 대한민국(남한/북한) 행정구역으로 변환하고 GeoJSON으로 시각화하는 파이썬 기반 도구  
+- **기술**: Python, Shapely/STRtree 기반 공간 인덱스, GeoJSON, 행정구역 GeoJSON 데이터  
+- **특징**: 사각형→행정구역 변환(대표표현/상세), 좌표→행정구역 변환 및 경계 조회, 섬 자동 감지·GeoJSON 생성 및 시각화
 
 ## Mini-Pipeline
-- **설명**: YouTube 스크립트 수집부터 전처리(Kiwi), Kafka/Spark 스트리밍을 거쳐 Opensearch에 인덱싱하는 Docker 기반 E2E 파이프라인입니다.  
-- **기술**: Docker Compose, Spark Structured Streaming, Kafka(kRaft), Opensearch, FastAPI/Nginx, Selenium/Kiwipiepy.  
-- **특징**: 컨테이너화된 스트리밍 아키텍처(다중 네트워크), Spark로 readStream/writeStream 파이프라인 구성, 텍스트 전처리용 pandas_udf + Kiwi 연동.
+- **설명**: YouTube 스크립트 추출부터 전처리·Kafka 전송·Opensearch 인덱싱까지의 스트리밍 기반 E2E 파이프라인  
+- **기술**: Docker(Compose), Apache Spark Structured Streaming, Kafka(kRaft), Opensearch, FastAPI/Nginx, Kiwipiepy(형태소), Selenium(스크립트 수집)  
+- **특징**: 컨테이너화된 스트리밍 파이프라인(Spark↔Kafka↔Opensearch), 한국어 전처리(키위+규칙) 및 pandas_udf 적용, 웹 검색 인터페이스 연동
 
 ## B_project
-- **설명**: 알고리즘 문제 풀이용 라이브러리(boj_bible)와 코딩 테스트 자동화·기록 도구를 포함한 실습용/운영용 프로젝트 모음입니다.  
-- **기술**: Python 중심 코드베이스, FastAPI/Async DB·Redis(문서 참조), Docker Compose, LLM 유틸리티 통합.  
-- **특징**: 기초·그래프·문자열 등 알고리즘 모듈(boj_bible), CT 자동화 도구와 LLM 호출 유틸(response_GPT 계열), kakao_history 노트북·운영 가이드(special_prompt.md) 추가.
+- **설명**: 알고리즘 문제 풀이와 코딩 테스트 자동화·보조 도구 모음 저장소  
+- **기술**: Python 중심(문제 풀이 라이브러리·노트북·FastAPI 등 문서·도구 혼합)  
+- **특징**: boj_bible(자료구조·알고리즘 모듈) 컬렉션, CT 자동화/LLM 유틸(기본 모델 변경 알림 포함), 문제 풀이 노트북 및 운영·개발 가이드 문서 제공
+
+<!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
@@ -25,4 +29,4 @@
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: af2d163445af75978d377baf41b849baa4628275 -->
+<!-- LAST_PROCESSED_SHA: d36b11ab4247a0c5ad317019770bf498d367c58e -->
