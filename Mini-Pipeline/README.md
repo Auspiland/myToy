@@ -73,4 +73,4 @@ Opensearch도 `writeStream` 을 활용하여 데이터를 삽입하였고, searc
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: 7d54ee56b840bcd6cf62bc1d3753a49dc81538c6 -->
+<!-- LAST_PROCESSED_SHA: 42dc2fa3ddbd4c160278a81fc633801008bde876 -->
