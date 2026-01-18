@@ -3,19 +3,19 @@
 
 <!-- AUTO-UPDATE:START -->
 ## geo_map
-- **설명**: 사각형 영역 또는 좌표를 대한민국(남한/북한) 행정구역으로 변환하고 GeoJSON 형태로 시각화하는 도구입니다.  
-- **기술**: Python 기반(Shapely/GeoJSON 기반 공간처리, STRtree 등 공간 인덱스), GeoJSON 데이터 사용.  
-- **특징**: 사각형→행정구역 변환(고속화된 rect2region_fast_v2), 섬 자동 감지 및 방향 기반 대표표현, GeoJSON 생성·일괄 변환 및 행정구역 경계 조회.
+- **설명**: 좌표나 사각형 영역을 한국(남한/북한) 행정구역 표현으로 변환하고 GeoJSON으로 시각화하는 파이썬 유틸리티.
+- **기술**: Python, Shapely/GeoPandas, STRtree 공간색인, GeoJSON.
+- **특징**: 사각형→행정구역/좌표→행정구역 변환, 섬 자동 감지 및 방향 기반 대표 표현, GeoJSON 생성·일괄 변환 및 경계 조회 기능.
 
 ## Mini-Pipeline
-- **설명**: YouTube 스크립트 추출부터 전처리, Kafka/Opensearch 적재까지의 스트리밍 E2E 파이프라인입니다.  
-- **기술**: Docker(컨테이너 오케스트레이션), Apache Spark Structured Streaming, Kafka(kRaft), Opensearch, FastAPI/Nginx, Kiwipiepy.  
-- **특징**: Streaming 기반 파이프라인(파일 감시 → Kafka 토픽 → Spark 처리 → Opensearch 적재), Kiwi 기반 텍스트 전처리(pandas_udf 활용), Docker-compose 네트워크 분리로 서비스 분산 구성.
+- **설명**: YouTube 스크립트 추출 → 문장 전처리 → Kafka/Opensearch로 업로드하는 엔드투엔드 스트리밍 파이프라인(도커 기반).
+- **기술**: Docker, Apache Spark Structured Streaming, Kafka(kRaft), OpenSearch, FastAPI, Nginx, Kiwipiepy.
+- **특징**: 컨테이너화된 스트리밍 파이프라인(폴더 감시 → Spark → Kafka/OpenSearch), 실시간 검색용 웹(nginx→fastapi) 연동, Kiwipiepy 기반 한국어 전처리 및 성능/운영 설정 설명.
 
 ## B_project
-- **설명**: 알고리즘·코딩 테스트 학습용 라이브러리 및 자동화 도구들을 모아 놓은 프로젝트입니다.  
-- **기술**: Python 중심(알고리즘 구현, 노트북 코드 및 FastAPI/Async 관련 운영 문서 포함).  
-- **특징**: boj_bible(자료구조·그래프·트리·문자열·고급 알고리즘) 모듈, CT(코딩테스트 자동화·기록) 도구와 예제 노트북, LLM 연동 유틸 및 운영·개발 가이드 문서 포함.
+- **설명**: 알고리즘 학습·코딩테스트 지원 모음(문제 풀이 코드, 유틸리티, 관련 문서).
+- **기술**: Python, Jupyter 노트북, 알고리즘 라이브러리(자료구조·그래프·트리 등), 일부 LLM 유틸리티 및 DevOps 문서(예: FastAPI/DB/CI 가이드).
+- **특징**: boj_bible(자료구조·알고리즘 구현) 모듈, CT 자동화·LLM 호출 유틸리티(기본 모델 변경 기록), 문제풀이 노트북 및 운영·배포용 가이드 문서.
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
@@ -38,4 +38,4 @@
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: 44141ec5e7f5f7d7cc6eb5507aef64465bc4fb83 -->
+<!-- LAST_PROCESSED_SHA: 011470ada2bdceb1071b1586570218ef490702c3 -->
