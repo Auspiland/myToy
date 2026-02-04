@@ -3,19 +3,19 @@
 
 <!-- AUTO-UPDATE:START -->
 ## geo_map
-- **설명**: 사각형 영역 또는 단일 좌표를 대한민국(남한/북한) 행정구역으로 변환하고 GeoJSON으로 시각화하는 도구입니다.  
-- **기술**: Python 기반(Shapely/GeoPandas/STRtree 등 공간 인덱스), GeoJSON, GitHub 자동 푸시 유틸.  
-- **특징**: 사각형→행정구역 변환 및 다수 처리(convert_many), 섬 자동 감지 및 방향 기반 대표 표현 생성, 행정구역 경계 조회 및 GeoJSON 생성/시각화.
+- **설명**: 좌표 또는 사각형 영역을 한국 행정구역(시/도/시군구 등)으로 변환하고 GeoJSON으로 시각화하는 도구입니다.  
+- **기술**: Python, Shapely/Geopandas, STRtree 공간색인, GeoJSON, GitHub 연동.  
+- **특징**: 사각형↔행정구역 변환(대량 처리 지원), 좌표→행정구역 매핑 및 경계 조회, 섬 자동 감지·GeoJSON 생성 및 시각화.
 
 ## Mini-Pipeline
-- **설명**: YouTube 스크립트를 수집해 문장 전처리 후 Kafka·Opensearch로 업로드하는 컨테이너 기반 스트리밍 파이프라인입니다.  
-- **기술**: Docker Compose(컨테이너별 네트워크), Spark Structured Streaming, Kafka(kRaft), OpenSearch, FastAPI/Nginx, Kiwipiepy(한국어 전처리).  
-- **특징**: Spark readStream→Kafka→Opensearch의 E2E 스트리밍 ETL, 컨테이너 간 내부 네트워크·라우팅 구성(Nginx), Kiwipiepy 기반 오탈자 수정·문장 분리·불용어 처리(병렬 pandas_udf 사용).
+- **설명**: YouTube 스크립트 수집 후 전처리하여 Kafka와 Opensearch로 스트리밍 업로드하는 E2E 파이프라인입니다.  
+- **기술**: Docker(Compose), Spark Structured Streaming, Kafka(kRaft), Opensearch, FastAPI/Nginx, Kiwipiepy, Selenium(수집 보조).  
+- **특징**: 컨테이너 기반 스트리밍 처리(파일→Kafka→Opensearch), 텍스트 전처리(Kiwi·룰베이스) 및 Spark UDF 병렬화, 복수 네트워크/토폴로지 구성.
 
 ## B_project
-- **설명**: 알고리즘 연습과 코딩테스트 솔루션을 모아둔 프로젝트입니다.  
-- **기술**: Python(알고리즘/자료구조 모듈), Jupyter 노트북 예제, FastAPI·DB 등 운영 가이드 문서(참고용).  
-- **특징**: boj_bible(기본 자료구조·그래프·문자열·고급 알고리즘) 모듈화, CT 자동화·기록 도구 및 예제 노트북(kakao_history), CT 유틸의 LLM 기본 모델 파라미터(gpt-5 → gpt-5-nano) 변경 공지.
+- **설명**: 알고리즘 학습·코딩테스트 도구 모음(풀이 라이브러리 및 자동화 도구)입니다.  
+- **기술**: Python 기반 알고리즘 모듈(자료구조·그래프·트리·문자열 등), Jupyter 노트북, FastAPI/LLM 관련 유틸(프로젝트 CT).  
+- **특징**: boj_bible 알고리즘 라이브러리 제공, CT 자동화·LLM 연동 유틸(기본 모델 gpt-5-nano 변경 안내 포함), 문제 풀이 샘플 노트북 및 도구 설명.
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
@@ -43,4 +43,4 @@
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: 924e183207c25c755dfd30236b5e0d72b03a777e -->
+<!-- LAST_PROCESSED_SHA: afb05b019b7328920b9ad2fb5d9ddc501123f734 -->
