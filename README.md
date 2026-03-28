@@ -3,19 +3,19 @@
 
 <!-- AUTO-UPDATE:START -->
 ## geo_map
-- **설명**: 사각형 영역 또는 좌표를 대한민국(남한/북한) 행정구역으로 빠르게 변환하고 시각화하는 도구입니다.  
-- **기술**: Python, Shapely/GeoPandas(STRtree), GeoJSON, 공간 인덱스 기반 필터링.  
-- **특징**: 사각형·좌표 → 행정구역 변환(대량 처리 지원), 섬 자동 감지 및 대표 표현 생성, 경계 조회·GeoJSON 생성 및 배포(대량 JSON 변환 포함).
+- **설명**: 좌표 또는 사각형 영역을 한반도(남/북) 행정구역으로 변환하고 GeoJSON으로 생성·시각화하는 도구  
+- **기술**: Python, Shapely/GeoPandas 기반 공간처리, STRtree 공간 인덱스, GeoJSON  
+- **특징**: 사각형/좌표 → 행정구역 변환(대표문구/상세), 행정구역 경계 조회 및 GeoJSON 생성·시각화, 섬 자동 감지 및 대량(배치) 변환 지원
 
 ## Mini-Pipeline
-- **설명**: YouTube 스크립트 추출부터 전처리·Kafka·Spark·Opensearch 업로드 및 웹 검색까지 연결된 스트리밍 E2E 파이프라인입니다.  
-- **기술**: Docker Compose, Kafka(kRaft), Spark Structured Streaming, OpenSearch, FastAPI, Nginx, Selenium, Kiwipiepy.  
-- **특징**: 컨테이너 기반 스트리밍 파이프라인(Kafka↔Spark↔Opensearch), 한국어 전처리(Kiwipiepy + 룰베이스) 및 검색 UI 연동, 마운트/파일 기반 입력과 대규모 처리 튜닝(Checkpoint/Timeout 전략).
+- **설명**: YouTube 스크립트 추출 → 문장 전처리 → Kafka/Spark → Opensearch 업로드까지의 컨테이너화된 E2E 스트리밍 파이프라인  
+- **기술**: Docker Compose, Spark Structured Streaming, Kafka(kRaft), Opensearch, FastAPI, Nginx, Kiwipiepy, Selenium  
+- **특징**: 마운트 폴더 감시 기반 스트리밍 파이프라인(파일→Kafka→Opensearch), 컨테이너 네트워크 분리로 서비스 격리, 한국어 전처리(오탈자 수정·문장 분리) 및 검색 연동
 
 ## B_project
-- **설명**: 알고리즘 문제 풀이(코딩 테스트)용 라이브러리와 관련 도구, 자동화 파이프라인 문서 모음입니다.  
-- **기술**: Python(알고리즘 구현 및 유틸), Jupyter 노트북, FastAPI/Async 백엔드 가이드(문서).  
-- **특징**: boj_bible(자료구조·그래프·트리·문자열·고급 알고리즘 모듈), CT 자동화 도구 및 LLM 유틸(모델 기본값 변경 안내), 문제 풀이 노트북·운영·배포 가이드 문서 제공.
+- **설명**: 알고리즘 학습 및 코딩테스트 자동화·기록을 위한 도구 모음  
+- **기술**: Python 기반 알고리즘 라이브러리/유틸, Jupyter 노트북, (문서화된) FastAPI/Async 운영 가이드 등  
+- **특징**: boj_bible(기초 자료구조·그래프·트리·문자열·고급 알고리즘) 제공, CT 자동화 도구 및 LLM 관련 기본 모델 변경 알림, 문제 풀이 노트북(예제 함수들) 추가
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
@@ -49,4 +49,4 @@
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: f934937e6033e94476d86aec63c04c9e11621cde -->
+<!-- LAST_PROCESSED_SHA: e605f8983724c55adf883591a30df91754891048 -->
