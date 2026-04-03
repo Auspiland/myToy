@@ -3,19 +3,19 @@
 
 <!-- AUTO-UPDATE:START -->
 ## geo_map
-- **설명**: 좌표 또는 사각형 영역을 대한민국/북한의 행정구역(시/도 등)으로 변환합니다.
-- **기술**: Python 기반, shapely/STRtree 공간 인덱스, GeoJSON 데이터 파일(GeoPandas 호환) 및 관련 유틸리티.
-- **특징**: 사각형·포인트 → 행정구역 변환(대량 처리 지원), 섬 자동 감지 및 대표 문구 생성, GeoJSON 생성·시각화 및 JSON 일괄 변환.
+- **설명**: 사각형 영역이나 좌표를 대한민국(남/북) 행정구역으로 매핑하고 GeoJSON 생성·시각화하는 도구  
+- **기술**: Python, Shapely/GeoPandas 계열(STRtree 공간 인덱스), GeoJSON 처리  
+- **특징**: 사각형→행정구역 변환(대표·상세 표현 지원), 대량 처리 최적화(convert_many), 섬 자동 감지 및 경계 조회/GeoJSON 출력
 
 ## Mini-Pipeline
-- **설명**: YouTube 스크립트 추출부터 문장 전처리, Kafka/Opensearch 업로드까지의 Docker화된 스트리밍 E2E 파이프라인입니다.
-- **기술**: Docker Compose(다중 컨테이너/네트워크), Spark Structured Streaming, Kafka(kRaft), Opensearch, FastAPI/Nginx, Selenium·Kiwipiepy.
-- **특징**: Spark→Kafka→Opensearch 스트리밍 ETL, 컨테이너화된 웹·검색·파이프라인 아키텍처, Kiwipiepy 기반 한국어 전처리(룰베이스 결합).
+- **설명**: YouTube 스크립트 추출 → 문장 전처리 → Kafka/Spark → Opensearch 업로드까지의 Docker 기반 스트리밍 파이프라인  
+- **기술**: Docker/Compose, Apache Spark, Kafka(kRaft), Opensearch, FastAPI/Nginx, Kiwipiepy(한국어 전처리)  
+- **특징**: 전체를 스트리밍 모드로 구성(마운트 폴더 감시→readStream→토픽/인덱스 저장), 컨테이너별 네트워크 분리 및 Nginx 라우팅, Selenium/Kiwi 연동 전처리 파이프라인
 
 ## B_project
-- **설명**: 알고리즘 문제 풀이 및 코딩 테스트 관련 도구와 예제들을 모아둔 레포지토리입니다.
-- **기술**: Python(라이브러리/스크립트), Jupyter Notebook, CT 자동화 유틸리티 및 LLM 호출 유틸리티.
-- **특징**: boj_bible(기본 자료구조·그래프·트리·문자열·고급 알고리즘) 모듈, CT 자동화 및 LLM 응답 유틸(기본 모델이 gpt-5-nano로 변경된 기능 포함), 추가 노트북·운영 가이드 문서.
+- **설명**: 알고리즘·코딩테스트용 라이브러리와 자동화·운영 가이드를 포함한 연습 및 도구 모음  
+- **기술**: Python 기반 알고리즘 모듈, (문서) FastAPI 비동기 스택·PostgreSQL/Redis/Docker 등 운영 가이드  
+- **특징**: boj_bible(자료구조·그래프·트리·문자열 등) 수록, CT 자동화 유틸·LLM 호출 유틸(기본 모델 gpt-5 → gpt-5-nano 변경), kakao_history 노트북·special_prompt 운영 문서 추가
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
@@ -51,4 +51,4 @@
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: 500da40e26f65806eda1400364210e47f6942aa9 -->
+<!-- LAST_PROCESSED_SHA: 47a613981d6dff5d347309853b8ff4a906155d76 -->
