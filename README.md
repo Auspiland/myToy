@@ -2,20 +2,22 @@
 잡동사니 프로젝트들의 모음입니다.
 
 <!-- AUTO-UPDATE:START -->
+<!-- AUTO-UPDATE:START -->
 ## geo_map
-- **설명**: 사각형 영역 또는 좌표를 한국(남한/북한) 행정구역(시/도 등)으로 변환하고 GeoJSON으로 시각화하는 툴입니다.  
-- **기술**: Python, Shapely/STRtree 기반 공간 인덱싱, GeoJSON, REST/스크립트 유틸(pip로 설치).  
-- **특징**: 사각형→행정구역 변환(대량 처리 지원), 섬 자동 감지 및 방향 기반 대표 표현, 행정구역 경계 조회·GeoJSON 생성 및 일괄 변환.
+- **설명**: 좌표나 사각형 영역을 대한민국(남한/북한) 행정구역으로 변환하고 GeoJSON으로 시각화하는 도구입니다.  
+- **기술**: Python, Shapely/GEOS, STRtree 공간 인덱스, GeoJSON 처리.  
+- **특징**: 사각형→행정구역(고속화된 rect2region_fast_v2), 섬 자동 감지 및 방향 기반 대표 표현, 행정구역 경계 조회 및 GeoJSON 생성/일괄 변환.
 
 ## Mini-Pipeline
-- **설명**: YouTube 스크립트 추출 → 문장 전처리 → Kafka/Opensearch 업로드까지의 스트리밍 E2E 파이프라인입니다.  
-- **기술**: Docker(Compose) 기반 컨테이너 아키텍처, Spark Structured Streaming, Kafka(kRaft), Opensearch, FastAPI/Nginx, Kiwipiepy(형태소), Selenium(스크립트 수집 보조).  
-- **특징**: 컨테이너별 네트워크 분리된 스트리밍 처리, Spark에서 Kafka/Opensearch로 writeStream 파이프라인 구성, 텍스트 전처리(오탈자·문장분리·불용어)와 검색 UI 연동.
+- **설명**: YouTube 스크립트 추출 → 문장 전처리 → Kafka/Opensearch로 업로드하는 컨테이너화된 스트리밍 E2E 파이프라인입니다.  
+- **기술**: Docker(Compose), Spark Structured Streaming, Kafka(kRaft), Opensearch, FastAPI, Nginx, Selenium, Kiwipiepy.  
+- **특징**: Streaming 모드 기반 데이터 파이프라인(파일 감시 → Kafka 토픽 → Spark 가공 → Opensearch 저장), Kiwi를 이용한 한국어 전처리(pandas_udf 사용), 컨테이너 간 네트워크 구성 및 kRaft 기반 Kafka 클러스터 설정.
 
 ## B_project
-- **설명**: 알고리즘/코딩테스트 풀이용 라이브러리와 자동화 도구(문제 풀이·기록·유틸)를 모은 프로젝트입니다.  
-- **기술**: Python 기반 알고리즘 모듈(자료구조·그래프·트리·문자열·고급 알고리즘), Jupyter 노트북, FastAPI/비동기 백엔드 가이드(문서 참조).  
-- **특징**: boj_bible(문제 풀이용 카테고리별 구현), CT 자동화·LLM 연동 유틸(모델 기본 변경 안내 포함), 예제 노트북 및 문제별 풀이 함수 제공.
+- **설명**: 알고리즘 문제 풀이 및 코딩 테스트 자동화·학습을 위한 라이브러리와 도구 모음입니다.  
+- **기술**: Python 기반 알고리즘 모듈, Jupyter 노트북, FastAPI/Async 스택(운영 가이드 문서 포함), LLM 유틸리티.  
+- **특징**: boj_bible(기초 자료구조·그래프·트리·문자열·고급 알고리즘) 모듈, CT 자동화 도구 및 LLM 호출 유틸(기본 모델 변경 안내 포함), kakao_history.ipynb 및 배포·운영 가이드 문서(special_prompt.md) 포함.
+<!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
@@ -53,4 +55,4 @@
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: 9523324271f168dc16e3881140737cf2e0b534a8 -->
+<!-- LAST_PROCESSED_SHA: 52b06c348e326d07e185f8aa185694bffd56ab99 -->
