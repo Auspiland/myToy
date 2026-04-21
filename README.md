@@ -3,19 +3,19 @@
 
 <!-- AUTO-UPDATE:START -->
 ## geo_map
-- **설명**: 사각형 영역이나 좌표를 대한민국 행정구역(남한/북한 포함)으로 변환하고 GeoJSON으로 시각화하는 도구입니다.
-- **기술**: Python, Shapely/GeoPandas 기반 공간 색인(STRtree), GeoJSON, 기타 지오데이터 처리 유틸리티.
-- **특징**: 사각형→행정구역 변환(고성능 rect2region_fast_v2), 좌표→행정구역 매핑, 섬 자동 감지 및 GeoJSON 생성/조회 기능.
+- **설명**: 사각형 영역 또는 좌표를 대한민국(남·북한 포함) 행정구역으로 변환하고 GeoJSON으로 시각화하는 도구  
+- **기술**: Python, Shapely/STRtree, GeoPandas/GeoJSON, (LLM 보조 번역), 기타 지오데이터 처리 유틸리티  
+- **특징**: 사각형→행정구역 변환(대/시도 단위 포함), 섬 자동 감지 및 방향 기반 대표 표현 생성, 행정구역 경계 조회·GeoJSON 생성·배치 변환
 
 ## Mini-Pipeline
-- **설명**: YouTube URL을 입력으로 받아 문장 전처리 후 Kafka·Opensearch로 스트리밍 업로드하는 E2E 파이프라인(도커 컨테이너 구성).
-- **기술**: Docker Compose, Spark(Structured Streaming), Kafka(kRaft), OpenSearch, FastAPI, Nginx, Selenium, Kiwipiepy.
-- **특징**: Spark 기반 스트리밍 ingestion→Kafka→Opensearch 흐름, Kiwipiepy·룰베이스 전처리(pandas_udf 활용), 컨테이너 네트워크·로그/디버깅 구성 포함.
+- **설명**: YouTube 스크립트를 받아 문장 전처리 후 Kafka/Spark를 거쳐 OpenSearch에 업로드하는 컨테이너 기반 스트리밍 파이프라인  
+- **기술**: Docker Compose, Apache Spark Structured Streaming, Kafka(kRaft), OpenSearch, FastAPI, Nginx, Selenium, Kiwipiepy  
+- **특징**: E2E 스트리밍 파이프라인(파일 모니터→Kafka→Spark→OpenSearch), Kiwi 기반 한국어 전처리(오탈자·문장 분리·불용어), Docker 네트워크/서비스 분리 및 모니터링
 
 ## B_project
-- **설명**: 알고리즘 풀이 및 코딩테스트 연습을 위한 라이브러리·유틸 모음(문제 풀이 예제·자동화 도구 포함).
-- **기술**: Python 중심(boj_bible 모듈들), Jupyter Notebook, FastAPI/비동기 관련 운영 문서 및 LLM 유틸(모델 호출 래퍼).
-- **특징**: 자료구조·그래프·문자열 등 알고리즘 모듈(boj_bible), CT 자동화 및 샘플 문제 풀이 노트북, LLM 호출 기본 모델 변경 등 운영·도움말 문서 포함.
+- **설명**: 알고리즘 연습·코딩 테스트 보조 라이브러리와 문제 풀이 도구 모음(노트북·자동화 유틸 포함)  
+- **기술**: Python, Jupyter Notebook, 알고리즘 구현(그래프/트리/문자열/고급 알고리즘), FastAPI/Async 관련 문서(참조용)  
+- **특징**: boj_bible(자료구조·그래프·트리·문자열 등 구현 모듈), CT 자동화·LLM 유틸(모델 기본값 변경 등), 문제 풀이 노트북 및 개발·배포 가이드 문서 제공
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
 <!-- AUTO-UPDATE:END -->
@@ -54,4 +54,4 @@
 
 <!-- LAST_PROCESSED_SHA: none -->
 
-<!-- LAST_PROCESSED_SHA: ed39b264adee4525144d2bba46b117365770e2c6 -->
+<!-- LAST_PROCESSED_SHA: 5c79cf0cf834aba251ceaa64fe0823de4e85539d -->
